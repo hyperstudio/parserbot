@@ -1,3 +1,5 @@
+settings.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -9,6 +11,7 @@ __pycache__/
 .Python
 env/
 bin/
+include/
 build/
 develop-eggs/
 dist/
