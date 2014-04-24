@@ -29,7 +29,7 @@ def keyword_search(keyword):
         "QueryString": keyword
     }
     r = requests.get(url, params=params, headers=headers)
-    return r
+    return r.json()
 
 def prefix_search(prefix):
     url = dbpedia_endpoint + "PrefixSearch"
@@ -42,4 +42,4 @@ def prefix_search(prefix):
         "MaxHits": 5
     }
     r = requests.get(url, params=params, headers=headers)
-    return r
+    return r.json()
