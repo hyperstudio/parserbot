@@ -46,7 +46,11 @@ def run_stanford():
         for index, item in enumerate(entity_list):
             dbp_resp = dbpedia.keyword_search(item)
             dbp_results = dbp_resp['results']
-            results[entity_type][index] = dbp_results[0] if dbp_results else None
+            default_response = {
+                'label': item,
+                'uri': None
+            }
+            results[entity_type][index] = dbp_results[0] if dbp_results else default_response
     return jsonify(results)
 
 @app.route('/dbpedia', methods=['GET', 'POST'])
