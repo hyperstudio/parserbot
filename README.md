@@ -10,6 +10,7 @@ Requires [virtualenv](http://www.virtualenv.org/en/latest/).
 * `pip install -r requirements.txt`
 * `mv settings.sample.py settings.py`
 * Open `settings.py` and add specific API keys and paths.
+* `python app.py`
 
 For use:
 
