@@ -1,11 +1,11 @@
 import requests
-import settings
+import config
 
 class CalaisAPI(object):
 
    def __init__(self):
-       self.api_key = settings.CALAIS_API_KEY
-       self.endpoint = settings.CALAIS_ENDPOINT
+       self.api_key = config.CALAIS_API_KEY
+       self.endpoint = config.CALAIS_ENDPOINT
 
    def call(self, payload, id_str=None):
        headers = {

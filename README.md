@@ -8,9 +8,9 @@ Requires [virtualenv](http://www.virtualenv.org/en/latest/).
 * `virtualenv .`
 * `. bin/activate`
 * `pip install -r requirements.txt`
-* `mv settings.sample.py settings.py`
-* Open `settings.py` and add specific API keys and paths.
-* `python app.py`
+* `mv config.sample.py config.py`
+* Open `config.py` and add specific API keys and paths.
+* `python run.py`
 
 For use:
 

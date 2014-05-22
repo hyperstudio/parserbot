@@ -68,6 +68,3 @@ def run_dbpedia():
         payload = request.form.get('payload')
     results = dbpedia.get_entities(payload)
     return jsonify({"results": results})
-
-if __name__ == "__main__":
-    app.run(debug=True)

@@ -4,12 +4,12 @@ import requests
 import urllib
 import csv
 import sys
-import settings
+import config
 
 class ZemantaAPI(object):
     """ For high-level access to the Zemanta API. """
 
-    def __init__(self, api_key=settings.ZEMANTA_API_KEY, endpoint=settings.ZEMANTA_ENDPOINT):
+    def __init__(self, api_key=config.ZEMANTA_API_KEY, endpoint=config.ZEMANTA_ENDPOINT):
         self.API_KEY = api_key
         self.ENDPOINT = endpoint
         self.session = requests.Session()

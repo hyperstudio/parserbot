@@ -1,9 +1,9 @@
 from nltk.tag.stanford import NERTagger
-import settings
+import config
 # Requires nltk library and plugins
 # NOTE: set STANFORD_NER_HOME to wherever you unpacked your Stanford NER directory. Default classifier should then load automaticall8y.
 
-def stanford_tag(sentence, classifier=settings.STANFORD_DEFAULT_CLASSIFIER, jarfile=settings.STANFORD_JARFILE):
+def stanford_tag(sentence, classifier=config.STANFORD_DEFAULT_CLASSIFIER, jarfile=config.STANFORD_JARFILE):
     """ Takes any text and optional classifier/jarfile kwargs. Returns raw response from Stanford NER. """
     t = NERTagger(classifier, jarfile)
     return t.batch_tag([sentence.encode('ascii', 'ignore').split()])
