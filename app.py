@@ -68,3 +68,9 @@ def run_dbpedia():
         payload = request.form.get('payload')
     results = dbpedia.get_entities(payload)
     return jsonify({"results": results})
+
+@app.route('/scrape/<path:path>')
+def scrape(path):
+    scraper_module = __import__('scrapers', globals(), locals(), [str(path)], -1)
+    path_module = getattr(scraper_module, path)
+    return jsonify({"results": path_module.scrape()})

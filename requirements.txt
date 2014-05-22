@@ -1,3 +1,4 @@
 Flask
 nltk
 requests
+beautifulsoup4
