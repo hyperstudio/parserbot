@@ -6,14 +6,6 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello world!'
 
-@app.route('/all', methods=['GET', 'POST'])
-def run_all():
-    if request.method == 'GET':
-        payload = request.args.get('payload')
-    elif request.method == 'POST':
-        payload = request.form.get('payload')
-    return jsonify({"results": results})
-
 @app.route('/calais', methods=['GET', 'POST'])
 def run_calais():
     if request.method == 'GET':
