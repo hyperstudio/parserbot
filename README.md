@@ -8,8 +8,7 @@ Requires [virtualenv](http://www.virtualenv.org/en/latest/).
 * `virtualenv .`
 * `. bin/activate`
 * `pip install -r requirements.txt`
-* `mv config.sample.py config.py`
-* Open `config.py` and add specific API keys and paths.
+* Set specific API keys either directly in `config.py` or in environment variables (e.g. Heroku config)
 * `python run.py`
 
 For use:
