@@ -12,7 +12,7 @@ def run_calais():
         payload = request.args.get('payload')
     elif request.method == 'POST':
         payload = request.form.get('payload')
-    results = calais.entity_call(payload, id_str)
+    results = calais.entity_call(payload)
     return jsonify({"results": results})
 
 @app.route('/zemanta', methods=['GET', 'POST'])
