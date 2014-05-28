@@ -19,7 +19,7 @@ class CalaisAPI(object):
            'calculateRelevanceScore': "true",
            'externalID': "artx-%s" % id_str,
            }
-       r = requests.post(self.endpoint, data=payload, headers=headers)
+       r = requests.post(self.endpoint, data=payload.encode('utf-8'), headers=headers)
        return r.json()
 
 def entity_call(payload, id_str=None):
