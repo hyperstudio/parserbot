@@ -45,6 +45,8 @@ def entity_call(payload, id_str=None):
             calais_id = key
             score = float(entity["relevance"])
             entity_type = entity.get("_type", "")
+        else:
+            continue
         finals.append({
             'name': name,
             'calais_id': calais_id,
