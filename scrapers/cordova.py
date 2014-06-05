@@ -31,8 +31,12 @@ def get_link_events(link_url):
 	eventLinks.append(BASE_URL + main.find('a')["href"])  
 
 	div = soup.find('div', {'id':'sidebar-left'}) # for exhibition list  
-	for listing in div.findAll('p'): # get links for most exhibits 
-		eventLinks.append(listing.a["href"]) # find all urls for events and exhibitions
+	for listing in div.findAll('p'): # get links for most exhibits
+		try:
+			eventLinks.append(listing.a["href"]) # find all urls for events and exhibitions
+		except TypeError:
+			# Sometimes fails due to extra blank p tag
+			pass
 
 	return eventLinks
 
