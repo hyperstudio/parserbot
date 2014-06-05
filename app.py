@@ -6,7 +6,7 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello world!'
 
-@app.route('/calais', methods=['GET', 'POST'])
+@app.route('/opencalais', methods=['GET', 'POST'])
 def run_calais():
     if request.method == 'GET':
         payload = request.args.get('payload')
@@ -28,7 +28,7 @@ def get_dbpedia_resources(stanford_results):
     dbp_results = []
     for entity_type, entity_list in stanford_results.items():
         for keyword in entity_list:
-            dbp_response = dbpedia.keyword_search(keyword)['results']
+            dbp_response = dbpedia.DbpediaAPI().keyword_search(keyword)['results']
             dbp_resource = dbp_response[0] if dbp_response else {}
             response = {
                 'uri': None,
@@ -58,7 +58,7 @@ def run_dbpedia():
         payload = request.args.get('payload')
     elif request.method == 'POST':
         payload = request.form.get('payload')
-    results = dbpedia.get_entities(payload)
+    results = dbpedia.DbpediaAPI().get_entities(payload)
     return jsonify({"results": results})
 
 @app.route('/scrape/<path:path>')
