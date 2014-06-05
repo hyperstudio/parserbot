@@ -21,18 +21,16 @@ class ZemantaAPI(object):
             params['format'] = 'json'
         endpoint = "%s?%s" % (self.ENDPOINT, urllib.urlencode(params))
         r = self.session.get(endpoint, timeout=8, allow_redirects=True)
-        try: result = r.json()
-        except JSONDecodeError: result = {}
-        return result
+        return r.json()
 
     def suggest(self, text, **kwargs):
         params = {
             'method': 'zemanta.suggest',
-            'text': text.decode('utf-8').encode('ascii', 'ignore')
+            'text': text.encode('utf-8')
         }
         for k, v in kwargs.items():
             if isinstance(v, basestring):
-                v = v.decode('utf-8').encode('ascii', 'ignore')
+                v = v.encode('utf-8')
             elif isinstance(v, bool):
                 v = int(v)
 #            elif isinstance(v, int):
@@ -43,7 +41,7 @@ class ZemantaAPI(object):
     def suggest_markup(self, text, emphasis=None, return_rdf_links=False, markup_limit=None):
         params = {
             'method': 'zemanta.suggest_markup',
-            'text': text.decode('utf-8').encode('ascii', 'ignore')}
+            'text': text.encode('utf-8')}
         if emphasis:
             params['emphasis'] = emphasis
         if return_rdf_links:
