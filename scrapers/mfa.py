@@ -11,61 +11,61 @@ def make_soup(url):
 
 #From base url, get all navigation links
 def get_nav_links(section_url):
-    soup = make_soup(section_url)
-    nav = soup.find('div', {'id': 'navDropContent'}) #find all links from navigation
-    #for every "li" found in nav, add to the link to a growing list 
-    navLinks = [BASE_URL + li.a["href"] for li in nav.findAll("li")]
-    return navLinks
+	soup = make_soup(section_url)
+
+	all_link_navs = soup.findAll('div', {'class': 'contextual-links-region'})
+
+	all_links = []
+	for link_nav in all_link_navs:
+		urls = [tag['href'] for tag in link_nav.findAll('a')]
+		for url in urls:
+			if not url.startswith('http'):
+				url = BASE_URL + url
+			if  '/exhibition' in url or '/program' in url:
+				all_links.append(url)
+	return list(set(all_links))
 
 # From exhibitions page, find all links for events and exhibitions
-def get_link_events(link_url): 
+def get_link_events(link_url):
 	soup = make_soup(link_url)
-	eventLinks = [] 
-
-	div = soup.find('div', {'id':'mainColumn'}) # find div to search  
-
-	showcase = div.find('div', {'class': 'showcase'}) # get link for showcase exhibit 
-	eventLinks.append(BASE_URL + showcase.a["href"])  
-
-	for listing in div.findAll('div', {'class': 'listing-text'}): # get links for most exhibits 
-		eventLinks.append(BASE_URL + listing.a["href"]) # find all urls for events and exhibitions
-
+	content_div = soup.find('div', {'class': 'view-content'})
+	if content_div is None:
+		return []
+	eventLinks = list(set([BASE_URL + row['href'] for row in content_div.findAll('a')]))
 	return eventLinks
 
 
 # From exhibition links, get relevant title, dates, and information 
 def get_event_info(event_url): 
-	soup = make_soup(event_url) 
-	main = soup.find('div', {'id': 'mainColumn'}) #General wrapper for all event details
-	showcase = main.find('div', {'class': 'showcase'}) # For title, dates, location 
-	
+	soup = make_soup(event_url)
+
+	banner = soup.find('div', {'id': 'banner'})
+
 	# GET NAME
 	name = ""
-	name = showcase.find('h1').getText() # get exhibition title 
-	name = re.sub('[\t\r\n]*', '', name) # remove extra white space
+	name = banner.find('h2').getText()
+	name = ': '.join([line.strip() for line in name.split('\n')]) # format name nicely
 
 	# GET DATES AND LOC
 	date = ""
+	dateBox = banner.find('span', {'class': 'date-display-range'})
+	if dateBox is not None:
+		date = dateBox.getText().strip()
 	loc = ""
-	box = showcase.find('div', {'class': 'red-box-links'})
-	date = box.find('strong').getText().strip() 
-	match = box.find('p').getText() 
-	loc = re.sub(date, '', match) # extract location from text gotten from date 
-	loc = loc.strip()  
-
+	loc = dateBox.findNext('br').getText()
+	loc = loc.strip()
 	
 	# GET EVENT DESCRIPTION 
 	text = ""
-	left = soup.find('div', {'id': 'mainLeftColumn'}) # To get text 
-	text = "" # String to store all text for the exhibition 
-	for p in left.findAll('p'): 
-		text += p.getText().strip() 
-
+	text = soup.find('div', {'class': 'body'}).getText() # To get text
 	
 	# GET IMAGE 
 	imageURL = ""
-	img = showcase.find('img') #Find image link 	
-	imageURL = (BASE_URL + img['src']).strip()  # add all images associated with event/exhibition
+	imageURL = banner.findNext('section').find('img')['src']
+	if imageURL.startswith('//'):
+		imageURL = 'http:' + imageURL
+	elif imageURL.startswith('/'):
+		imageURL = BASE_URL + imageURL
 
 	return name, date, loc, text, imageURL  
 
@@ -78,23 +78,28 @@ def get_event_info(event_url):
 def scrape(): 
 	allEvents = [] #Array for all dictionaries created 
 
-	links = get_nav_links(BASE_URL) #get all navigation links from main page
-	for link in links: 
-		if re.match('(.*)exhibitions$', link, re.I): #find link for current exhibitions 
-	 		exhibitions = get_link_events(link) #all exhibition links 
+	nav_links = get_nav_links(BASE_URL) #get all navigation links from main page
+	nav_links = filter(lambda link: 
+		link.endswith('exhibitions') or 'exhibitions/upcoming' in link,
+		nav_links)
+	print nav_links
+	exhibitions = [item for sublist in
+		[get_link_events(nav_link) for nav_link in nav_links]
+		for item in sublist]
 
-
-	for exh in exhibitions: 
-		# For each distinctive exh: return dictionary with url, dates, description, image, and name labels
+	for exh in list(set(exhibitions)):
+		print exh
+		try:
 			#For each distinctive url: return dictionary with url, dates, description, image, and name labels
-			info = {} 	
-			name,date, loc, text,image = get_event_info(exh) # get info 
+			info = {}
+			name, date, loc, text, image = get_event_info(exh) # get info 
 			info['url'] = exh; # add value for 'url' key 
 			info['dates'] = date
 			info['location'] = loc 
 			info['description'] = text
 			info['image'] = image
 			info['name'] = name 
-			allEvents.append(info)  
-
-	return allEvents 
+			allEvents.append(info)
+		except Exception as err:
+			print 'Failed on url %s with message %s' % (exh, err.message)
+	return allEvents
