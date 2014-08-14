@@ -25,20 +25,18 @@ def get_nav_links(section_url):
 # From exhibitions page, find all links for events and exhibitions
 def get_link_events(link_url): 
 	soup = make_soup(link_url)
-	eventLinks = [] 
 
-	main = soup.find('div', {'id': 'content-area'}) # get link for main exhibit 
-	eventLinks.append(BASE_URL + main.find('a')["href"])  
+	eventLinks = []
 
-	div = soup.find('div', {'id':'sidebar-left'}) # for exhibition list  
-	for listing in div.findAll('p'): # get links for most exhibits
-		try:
-			eventLinks.append(listing.a["href"]) # find all urls for events and exhibitions
-		except TypeError:
-			# Sometimes fails due to extra blank p tag
-			pass
+	main = soup.find('div', {'id': 'content'}) # get links for main exhibits
+	all_links = main.findAll('a')
+	for link in all_links:
+		url = link['href']
+		if not url.startswith('http'):
+			url = BASE_URL + url
+		eventLinks.append(url)
 
-	return eventLinks
+	return list(set(eventLinks))
 
 
 # From exhibition links, get relevant title, dates, and information 
@@ -95,14 +93,17 @@ def scrape():
 	for exh in exhibitions: 
 		if not re.match('.*trees', exh, re.I): # Hacky, but get rid of permanent tree sculpture list
 			# For each distinctive exh: return dictionary with url, dates, description, image, and name labels
-			info = {} 	
-			name,date, loc, text,image = get_event_info(exh) # get info 
-			info['url'] = exh; # add value for 'url' key 
-			info['dates'] = date
-			info['location'] = loc 
-			info['description'] = text
-			info['image'] = image
-			info['name'] = name 
-			allEvents.append(info)  
-
+			try:
+				info = {} 	
+				name,date, loc, text,image = get_event_info(exh) # get info 
+				info['url'] = exh; # add value for 'url' key 
+				info['dates'] = date
+				info['location'] = loc 
+				info['description'] = text
+				info['image'] = image
+				info['name'] = name 
+			except AttributeError:
+				continue
+			else:
+				allEvents.append(info)
 	return allEvents
