@@ -1,6 +1,23 @@
 from flask import Flask, jsonify, request
 from parsers import calais, dbpedia, freebase, stanford, zemanta
+from user import User
 app = Flask(__name__)
+
+def authorized():
+    params = request.args if request.method == 'GET' else request.form
+    if not 'key' in params:
+        return False
+    try:
+        user = User(params.get('key'))
+    except:
+        return False
+    return True
+
+def response_403():
+    return jsonify({
+        'status': 403,
+        'message': 'Forbidden'
+    })
 
 @app.route('/')
 def hello_world():
@@ -8,6 +25,8 @@ def hello_world():
 
 @app.route('/opencalais', methods=['GET', 'POST'])
 def run_calais():
+    if not authorized():
+        return response_403()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
@@ -17,6 +36,8 @@ def run_calais():
 
 @app.route('/zemanta', methods=['GET', 'POST'])
 def run_zemanta():
+    if not authorized():
+        return response_403()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
@@ -41,6 +62,8 @@ def get_dbpedia_resources(stanford_results):
 
 @app.route('/stanford', methods=['GET', 'POST'])
 def run_stanford():
+    if not authorized():
+        return response_403()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
@@ -54,6 +77,8 @@ def run_stanford():
 
 @app.route('/dbpedia', methods=['GET', 'POST'])
 def run_dbpedia():
+    if not authorized():
+        return response_403()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
@@ -63,6 +88,8 @@ def run_dbpedia():
 
 @app.route('/scrape/<path:path>')
 def scrape(path):
+    if not authorized():
+        return response_403()
     scraper_module = __import__('scrapers', globals(), locals(), [str(path)], -1)
     path_module = getattr(scraper_module, path)
     return jsonify({"results": path_module.scrape()})
