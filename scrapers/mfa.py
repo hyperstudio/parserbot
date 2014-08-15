@@ -82,13 +82,11 @@ def scrape():
 	nav_links = filter(lambda link: 
 		link.endswith('exhibitions') or 'exhibitions/upcoming' in link,
 		nav_links)
-	print nav_links
 	exhibitions = [item for sublist in
 		[get_link_events(nav_link) for nav_link in nav_links]
 		for item in sublist]
 
 	for exh in list(set(exhibitions)):
-		print exh
 		try:
 			#For each distinctive url: return dictionary with url, dates, description, image, and name labels
 			info = {}
