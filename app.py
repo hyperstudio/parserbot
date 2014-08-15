@@ -1,49 +1,44 @@
 from flask import Flask, jsonify, request
 from parsers import calais, dbpedia, freebase, stanford, zemanta
 from user import User
+
 app = Flask(__name__)
 
-def authorized():
-    params = request.args if request.method == 'GET' else request.form
-    if not 'key' in params:
-        return False
-    try:
-        user = User(params.get('key'))
-    except:
-        return False
-    return True
-
-def response_403():
-    return jsonify({
-        'status': 403,
-        'message': 'Forbidden'
-    })
 
 @app.route('/')
 def hello_world():
-    return 'Hello world!'
+    message = {
+        'status': 200,
+        'message': 'Hello world. Find me on github at https://github.com/mailbackwards/artx-ner'
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp
+
 
 @app.route('/opencalais', methods=['GET', 'POST'])
 def run_calais():
     if not authorized():
-        return response_403()
+        return forbidden()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
         payload = request.form.get('payload')
     results = calais.entity_call(payload)
-    return jsonify({"results": results})
+    return respond(results)
+
 
 @app.route('/zemanta', methods=['GET', 'POST'])
 def run_zemanta():
     if not authorized():
-        return response_403()
+        return forbidden()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
         payload = request.form.get('payload')
     results = zemanta.ZemantaAPI().entity_query(payload)
-    return jsonify({"results": results})
+    return respond(results)
+
 
 def get_dbpedia_resources(stanford_results):
     dbp_results = []
@@ -60,10 +55,11 @@ def get_dbpedia_resources(stanford_results):
             dbp_results.append(response)
     return dbp_results
 
+
 @app.route('/stanford', methods=['GET', 'POST'])
 def run_stanford():
     if not authorized():
-        return response_403()
+        return forbidden()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
@@ -73,23 +69,82 @@ def run_stanford():
     stanford_results = dict((key, list(set(value))) for key, value in stanford_results.items())
     # now get dbpedia URLs for them
     dbp_results = get_dbpedia_resources(stanford_results)
-    return jsonify({"results": dbp_results})
+    return respond(dbp_results)
+
 
 @app.route('/dbpedia', methods=['GET', 'POST'])
 def run_dbpedia():
     if not authorized():
-        return response_403()
+        return forbidden()
     if request.method == 'GET':
         payload = request.args.get('payload')
     elif request.method == 'POST':
         payload = request.form.get('payload')
     results = dbpedia.DbpediaAPI().get_entities(payload)
-    return jsonify({"results": results})
+    return respond(results)
+
 
 @app.route('/scrape/<path:path>')
 def scrape(path):
     if not authorized():
-        return response_403()
+        return forbidden()
     scraper_module = __import__('scrapers', globals(), locals(), [str(path)], -1)
     path_module = getattr(scraper_module, path)
-    return jsonify({"results": path_module.scrape()})
+    results = path_module.scrape()
+    return respond(results)
+
+
+def respond(results):
+    message = {
+        'status': 200,
+        'message': 'Success',
+        'count': len(results),
+        'results': results
+    }
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp
+
+
+@app.errorhandler(404)
+def not_found(error=None):
+    message = {
+        'status': 404,
+        'message': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
+    return resp
+
+
+@app.errorhandler(500)
+def internal_server_error(error=None):
+    message = {
+        'status': 500,
+        'message': 'Internal server error'
+    }
+    resp = jsonify(message)
+    resp.status_code = 500
+    return resp
+
+
+@app.errorhandler(403)
+def forbidden(error=None):
+    message = {
+        'status': 403,
+        'message': 'Forbidden'
+    }
+    resp = jsonify(message)
+    resp.status_code = 403
+    return resp
+
+
+def authorized():
+    params = request.args if request.method == 'GET' else request.form
+    if not 'key' in params:
+        return False
+    try:
+        user = User(params.get('key'))
+    except:
+        return False
+    return True
