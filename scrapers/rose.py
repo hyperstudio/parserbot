@@ -88,19 +88,22 @@ def scrape():
 	 		exhibitions = get_link_events(link) #all exhibition links 
 
 
-	for exh in exhibitions: 
-		# For each distinctive exh: return dictionary with url, dates, description, image, and name labels
-			#For each distinctive url: return dictionary with url, dates, description, image, and name labels
-			info = {} 	
-			name,date, loc, text,image = get_event_info(exh) # get info 
-			info['url'] = exh; # add value for 'url' key 
-			info['dates'] = date
-			info['location'] = loc 
-			info['description'] = text
-			info['image'] = image
-			info['name'] = name 
-			allEvents.append(info)  
+	for exh in exhibitions:
+		#For each distinctive url: return dictionary with url, dates, description, image, and name labels
+		info = {}
+		try:
+			name,date, loc, text,image = get_event_info(exh) # get info
+		except Exception as err:
+			print 'Exception on %s: %s' % (exh, err.message)
+			continue
+		info['url'] = exh # add value for 'url' key
+		info['dates'] = date
+		info['location'] = loc
+		info['description'] = text
+		info['image'] = image
+		info['name'] = name
+		allEvents.append(info)
 
-	return allEvents 
+	return allEvents
 
 
