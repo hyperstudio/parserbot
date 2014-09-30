@@ -53,9 +53,12 @@ def get_event_info(event_url):
 
 	
 	# GET EVENT DESCRIPTION 
-	text = "" # String to store all text for the exhibition 
-	for p in feature.findAll('p', {'style':'text-align: justify;'}): 
-		text += p.getText() 
+	text = "" # String to store all text for the exhibition
+	grafs = feature.findAll('p', {'style':'text-align: justify;'})
+	if not grafs:
+		grafs = feature.findAll('p')
+	for graf in grafs:
+		text += graf.getText() 
 
 	
 	# GET IMAGE 
