@@ -26,3 +26,13 @@ Requires [virtualenv](http://www.virtualenv.org/en/latest/). After cloning:
 
 * Parser app: `/stanford?payload=This+is+a+test+Pablo+Picasso&key=My+API+Key` *(also accepts data in a `POST` request)*
 * Scraper app: `/scrape/peabody?key=My+API+Key`
+
+### Future
+
+Parsers to add:
+
+* [Getty Vocabularies](http://www.getty.edu/research/tools/vocabularies/) (especially [Union List of Artist Names](http://www.getty.edu/research/tools/vocabularies/ulan/index.html))
+* [OpenNLP](https://opennlp.apache.org/)
+* [AlchemyAPI](http://www.alchemyapi.com/)
+* [Diffbot](http://www.diffbot.com/)
+* [CLAVIN](http://clavin.bericotechnologies.com/)
