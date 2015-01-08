@@ -17,7 +17,7 @@ class CalaisAPI(object):
            'accept': 'application/json',
            'enableMetadataType': "SocialTags",
            'calculateRelevanceScore': "true",
-           'externalID': "artx-%s" % id_str,
+           'externalID': "parserbot-%s" % id_str,
            }
        r = requests.post(self.endpoint, data=payload.encode('utf-8'), headers=headers)
        return r.json()

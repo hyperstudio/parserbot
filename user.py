@@ -1,13 +1,13 @@
 import hashlib
 import datetime
 import random
-from config import ARTX_USER_KEYS
+from config import PARSERBOT_USER_KEYS
 
 class User(object):
 
     def __init__(self, api_key):
-        assert ARTX_USER_KEYS is not None, 'No API keys configured'
-        assert api_key in ARTX_USER_KEYS, 'Invalid API key'
+        assert PARSERBOT_USER_KEYS is not None, 'No API keys configured'
+        assert api_key in PARSERBOT_USER_KEYS, 'Invalid API key'
         self.api_keys = api_key
 
     @staticmethod

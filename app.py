@@ -9,7 +9,7 @@ app = Flask(__name__)
 def hello_world():
     message = {
         'status': 200,
-        'message': 'Hello world. Find me on github at https://github.com/mailbackwards/artx-ner'
+        'message': 'Hello world. Find me on github at https://github.com/mailbackwards/parserbot'
     }
     resp = jsonify(message)
     resp.status_code = 200

@@ -20,4 +20,4 @@ FREEBASE_ENDPOINT = "https://www.googleapis.com/freebase/v1/mqlread"
 ZEMANTA_API_KEY = os.environ.get('ZEMANTA_API_KEY') # add this
 ZEMANTA_ENDPOINT = 'http://api.zemanta.com/services/rest/0.0/'
 
-ARTX_USER_KEYS = os.environ.get('ARTX_USER_KEYS')
+PARSERBOT_USER_KEYS = os.environ.get('PARSERBOT_USER_KEYS')
