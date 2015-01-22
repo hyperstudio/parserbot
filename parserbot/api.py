@@ -1,8 +1,8 @@
-from flask import Flask, jsonify, request, abort
+from flask import current_app, Blueprint, jsonify, request, abort
 from parserbot import calais, dbpedia, stanford, zemanta
 import hashlib
 
-app = Flask(__name__)
+bp = Blueprint('parserbot', __name__)
 
 
 def authorized():
@@ -28,7 +28,7 @@ def respond(results):
     return resp
 
 
-@app.route('/', methods=['GET'])
+@bp.route('/', methods=['GET'])
 def hello_world():
     message = {
         'status': 200,
@@ -39,13 +39,13 @@ def hello_world():
     return resp
 
 
-@app.route('/opencalais', methods=['POST'])
+@bp.route('/opencalais', methods=['POST'])
 def run_calais():
     results = handle(calais.entity_call)
     return respond(results)
 
 
-@app.route('/zemanta', methods=['POST'])
+@bp.route('/zemanta', methods=['POST'])
 def run_zemanta():
     results = handle(zemanta.ZemantaAPI().entity_query)
     return respond(results)
@@ -67,7 +67,7 @@ def get_dbpedia_resources(stanford_results):
     return dbp_results
 
 
-@app.route('/stanford', methods=['POST'])
+@bp.route('/stanford', methods=['POST'])
 def run_stanford():
     stanford_results = handle(stanford.get_entities)
     # dedupe the lists so that we aren't calling dbpedia repeatedly
@@ -77,41 +77,7 @@ def run_stanford():
     return respond(dbp_results)
 
 
-@app.route('/dbpedia', methods=['POST'])
+@bp.route('/dbpedia', methods=['POST'])
 def run_dbpedia():
     results = handle(dbpedia.DbpediaAPI().get_entities)
     return respond(results)
-
-
-@app.errorhandler(404)
-def not_found(error=None):
-    message = {
-        'status': 404,
-        'message': error.message or 'Not Found: ' + request.url,
-    }
-    resp = jsonify(message)
-    resp.status_code = 404
-    return resp
-
-
-@app.errorhandler(500)
-def internal_server_error(error=None):
-    message = {
-        'status': 500,
-        'message': error.message or 'Internal server error'
-    }
-    resp = jsonify(message)
-    resp.status_code = 500
-    return resp
-
-
-@app.errorhandler(403)
-def forbidden(error=None):
-    print 'I AM HERE NOW %s' % dir(error)
-    message = {
-        'status': 403,
-        'message': error.message or 'Forbidden'
-    }
-    resp = jsonify(message)
-    resp.status_code = 403
-    return resp

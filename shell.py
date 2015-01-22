@@ -4,8 +4,8 @@ import readline
 from pprint import pprint
 
 from flask import *
-from parserbot.app import *
+from parserbot import create_app
 
-app.config.from_object('config')
+app = create_app()
 
 os.environ['PYTHONINSPECT'] = 'True'

@@ -7,6 +7,7 @@ import codecs
 import io
 import re
 import os
+import sys
 
 import parserbot
 
@@ -27,14 +28,20 @@ def find_version(*file_paths):
 long_description = read('README.md')
 
 class PyTest(TestCommand):
+    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
+
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = ['--strict', '--verbose', '--tb=long', 'tests']
+        self.test_args = ['--strict', '--verbose', '--tb=long', 'test/']
         self.test_suite = True
 
     def run_tests(self):
         import pytest
-        errno = pytest.main(self.test_args)
+        errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
 setup(
