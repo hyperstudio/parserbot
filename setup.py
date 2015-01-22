@@ -3,7 +3,10 @@ Install with `pip install .`
 """
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
+import codecs
 import io
+import re
+import os
 
 import parserbot
 
@@ -36,14 +39,14 @@ class PyTest(TestCommand):
 
 setup(
     name='parserbot',
-    version=find_version('parserbot', '__init__.py')
+    version=find_version('parserbot', '__init__.py'),
     url='http://github.com/mailbackwards/parserbot/',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
         'Flask>=0.10.1',
-        'nltk>=2.0.4',
-        'requests>=2.2.1'
+        'nltk>=3.0.1',
+        'requests>=2.5.1'
     ],
     cmdclass={'test': PyTest},
     #license='LGPL' # TODO: decide on license

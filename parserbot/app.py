@@ -1,4 +1,4 @@
-from flask import app, jsonify, request
+from flask import Flask, jsonify, request
 from parserbot import calais, dbpedia, stanford, zemanta
 import hashlib
 
