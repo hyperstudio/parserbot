@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from parserbot import calais, dbpedia, stanford, zemanta
 import hashlib
 
@@ -10,6 +10,8 @@ def authorized():
 
 
 def handle(f):
+    if not authorized():
+        abort(403)
     payload = request.json.get('payload')
     return f(payload)
 
@@ -40,16 +42,12 @@ def hello_world():
 
 @app.route('/opencalais', methods=['POST'])
 def run_calais():
-    if not authorized():
-        return forbidden()
     results = handle(calais.entity_call)
     return respond(results)
 
 
 @app.route('/zemanta', methods=['POST'])
 def run_zemanta():
-    if not authorized():
-        return forbidden()
     results = handle(zemanta.ZemantaAPI().entity_query)
     return respond(results)
 
@@ -72,8 +70,6 @@ def get_dbpedia_resources(stanford_results):
 
 @app.route('/stanford', methods=['POST'])
 def run_stanford():
-    if not authorized():
-        return forbidden()
     stanford_results = handle(stanford.get_entities)
     # dedupe the lists so that we aren't calling dbpedia repeatedly
     stanford_results = dict((key, list(set(value))) for key, value in stanford_results.items())
@@ -84,8 +80,6 @@ def run_stanford():
 
 @app.route('/dbpedia', methods=['POST'])
 def run_dbpedia():
-    if not authorized():
-        return forbidden()
     results = handle(dbpedia.DbpediaAPI().get_entities)
     return respond(results)
 
@@ -94,10 +88,8 @@ def run_dbpedia():
 def not_found(error=None):
     message = {
         'status': 404,
-        'message': 'Not Found: ' + request.url,
+        'message': error.message or 'Not Found: ' + request.url,
     }
-    if error is not None:
-        message['error'] = error
     resp = jsonify(message)
     resp.status_code = 404
     return resp
@@ -107,10 +99,8 @@ def not_found(error=None):
 def internal_server_error(error=None):
     message = {
         'status': 500,
-        'message': 'Internal server error'
+        'message': error.message or 'Internal server error'
     }
-    if error is not None:
-        message['error'] = error
     resp = jsonify(message)
     resp.status_code = 500
     return resp
@@ -118,12 +108,11 @@ def internal_server_error(error=None):
 
 @app.errorhandler(403)
 def forbidden(error=None):
+    print 'I AM HERE NOW %s' % dir(error)
     message = {
         'status': 403,
-        'message': 'Forbidden'
+        'message': error.message or 'Forbidden'
     }
-    if error is not None:
-        message['error'] = error
     resp = jsonify(message)
     resp.status_code = 403
     return resp
