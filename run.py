@@ -1,4 +1,4 @@
-from app import app
+from parserbot.app import *
 
 app.config.from_object('config')
 host = '127.0.0.1' if app.config['DEBUG'] else '0.0.0.0'

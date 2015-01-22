@@ -1,31 +1,37 @@
 Parserbot
 =========
 
-Two apps for the price of one. Tools for the [Artbot](http://github.com/hyperstudio/artbot-api) project. Built on [Flask](http://flask.pocoo.org/).
+Parserbot wants to be your one-stop shop for natural language parsing, tagging, and entity extraction. It wraps a variety of services and APIs into one app for easy parsing and cross-reference. Currently:
 
-1. JSON endpoints for various text parsers, categorizers, and entity recognizers: [Stanford NER](http://nlp.stanford.edu/software/CRF-NER.shtml), [DBpedia](http://dbpedia.org), [OpenCalais](http://www.opencalais.com/), [Zemanta](http://www.zemanta.com/).
-2. JSON scraper that extracts structured data from various museum websites.
+- [Stanford NER](http://nlp.stanford.edu/software/CRF-NER.shtml)
+- [DBpedia](http://dbpedia.org)
+- [OpenCalais](http://www.opencalais.com/)
+- [Zemanta](http://www.zemanta.com/)
+- roughly, [Freebase](http://www.freebase.com/)
+
+Built for the [Artbot](http://github.com/hyperstudio/artbot-api) project on [Flask](http://flask.pocoo.org/).
 
 ### Setup
 
-Requires [virtualenv](http://www.virtualenv.org/en/latest/). After cloning:
+Best to do this in a [virtualenv](http://www.virtualenv.org/en/latest/), or even better, a [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). After setting up and activating the virtualenv:
 
-* `virtualenv .`
-* `. bin/activate`
-* `pip install -r requirements.txt`
+* `pip install .`
 * `python run.py`
 
-**Note:** All resources require a valid API key, and some (e.g. OpenCalais) need additional API keys. Set all API keys in environment variables:
+**Note:** All resources require a valid secret key, and some (e.g. OpenCalais) need additional API keys. Set all API keys in environment variables:
 
-- `PARSERBOT_USER_KEYS` is a comma-separated list of keys to serve as valid user API keys (we don't have a database, we're improvising here)
+- `PARSERBOT_SECRET_KEY` is the app's secret key, which you need to generate and hash in order to get your "authentication token"
 - `CALAIS_API_KEY` is an [OpenCalais API key](http://www.opencalais.com/APIkey) for all of the `/opencalais` endpoints.
 - `ZEMANTA_API_KEY` is a [Zemanta API key](http://www.zemanta.com/developer/) for all of the `/zemanta` endpoints.
 - `FREEBASE_API_KEY` is...not currently in use.
 
 ### Use
 
-* Parser app: `/stanford?payload=This+is+a+test+Pablo+Picasso&key=My+API+Key` *(also accepts data in a `POST` request)*
-* Scraper app: `/scrape/peabody?key=My+API+Key`
+Python example:
+
+	headers = {'Authentication': '<YOUR_TOKEN_HERE>', 'Content-Type': 'application/json'}
+	data = json.dumps({'payload': 'This is a test for a man named Pablo Picasso, have you heard of him?'})
+	r = requests.post("http://127.0.0.1:5000/stanford", data=data, headers=headers)
 
 ### Future
 

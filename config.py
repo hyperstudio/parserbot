@@ -5,11 +5,13 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = os.environ.get('DEBUG') or True
 JSON_AS_ASCII = False
+SECRET_KEY = os.environ.get('PARSERBOT_SECRET_KEY')
 
 # Resource-specific variables
 
-STANFORD_JARFILE = os.path.join(_basedir, "stanford-ner", "stanford-ner.jar")
-STANFORD_DEFAULT_CLASSIFIER = os.path.join(_basedir, "stanford-ner", "english.all.3class.distsim.crf.ser.gz")
+_stanford_ner_basedir = os.path.join(_basedir, "parserbot", "stanford-ner")
+STANFORD_JARFILE = os.path.join(_stanford_ner_basedir, "stanford-ner.jar")
+STANFORD_DEFAULT_CLASSIFIER = os.path.join(_stanford_ner_basedir, "english.all.3class.distsim.crf.ser.gz")
 
 CALAIS_API_KEY = os.environ.get('CALAIS_API_KEY')
 CALAIS_ENDPOINT = 'http://api.opencalais.com/tag/rs/enrich'
