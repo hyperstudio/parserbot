@@ -1,9 +1,5 @@
-# May require installing requests http://python-requests.org
-
 import requests
 import urllib
-import csv
-import sys
 import config
 
 class ZemantaAPI(object):
@@ -33,8 +29,6 @@ class ZemantaAPI(object):
                 v = v.encode('utf-8')
             elif isinstance(v, bool):
                 v = int(v)
-#            elif isinstance(v, int):
-#                v = str(v)
             params[k] = v
         return self._access_api(params)
 
@@ -68,26 +62,3 @@ class ZemantaAPI(object):
             }
             entities.append(entity)
         return entities
-
-class ZemantaCSV(object):
-    """ For writing results from the Zemanta API to a CSV file. """
-
-    def _write_to_csv(self, entities, outfile='outfile.csv'):
-        with open(outfile, 'w+') as f:
-            writer = csv.DictWriter(f, fieldnames=entities[0].keys())
-            writer.writeheader()
-            writer.writerows(entities)
-        return
-
-    def csv_query(self, payload, outfile='outfile.csv'):
-        entities = ZemantaAPI().entity_query(payload)
-        self._write_to_csv(entities, outfile)
-
-if __name__ == "__main__":
-    """ Usage: python zemanta.py [text file or string] [optional CSV outfile--defaults to outfile.csv] """
-    if sys.argv[1].endswith(".txt"):
-        with open(sys.argv[1], "r") as f:
-            text = f.read()
-    else:
-        text = sys.argv[1]
-    ZemantaCSV().csv_query(text)
