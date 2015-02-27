@@ -1,7 +1,7 @@
 Parserbot
 =========
 
-Parserbot wants to be your one-stop shop for natural language parsing, tagging, and entity extraction. It wraps a variety of services and APIs into one app for easy parsing and cross-reference. Currently:
+Parserbot is your one-stop shop for natural language parsing, tagging, and entity extraction. It wraps a variety of services and APIs into one app for easy parsing and cross-reference. Currently:
 
 - [Stanford NER](http://nlp.stanford.edu/software/CRF-NER.shtml)
 - [DBpedia](http://dbpedia.org)
@@ -21,8 +21,8 @@ Best to do this in a [virtualenv](http://www.virtualenv.org/en/latest/), or even
 **Note:** All resources require a valid secret key, and some (e.g. OpenCalais) need additional API keys. Set all API keys in environment variables:
 
 - `PARSERBOT_SECRET_KEY` is the app's secret key, which you need to generate and hash in order to get your "authentication token"
-- `CALAIS_API_KEY` is an [OpenCalais API key](http://www.opencalais.com/APIkey) for all of the `/opencalais` endpoints.
-- `ZEMANTA_API_KEY` is a [Zemanta API key](http://www.zemanta.com/developer/) for all of the `/zemanta` endpoints.
+- `CALAIS_API_KEY` is an [OpenCalais API key](http://www.opencalais.com/APIkey) for the `/opencalais` endpoint.
+- `ZEMANTA_API_KEY` is a [Zemanta API key](http://www.zemanta.com/developer/) for the `/zemanta` endpoint.
 - `FREEBASE_API_KEY` is...not currently in use.
 
 ### Use
@@ -30,12 +30,16 @@ Best to do this in a [virtualenv](http://www.virtualenv.org/en/latest/), or even
 Python example:
 
 	headers = {'Authentication': '<YOUR_TOKEN_HERE>', 'Content-Type': 'application/json'}
-	data = json.dumps({'payload': 'This is a test for a man named Pablo Picasso, have you heard of him?'})
+	data = json.dumps({'payload': 'This is a test for a man named Pablo Picasso'})
 	r = requests.post("http://127.0.0.1:5000/stanford", data=data, headers=headers)
+
+Tests (runs on [pytest-flask](https://github.com/vitalk/pytest-flask/)):
+
+	python setup.py test
 
 ### Future
 
-Parsers to add:
+Parsers to add someday:
 
 * [Getty Vocabularies](http://www.getty.edu/research/tools/vocabularies/) (especially [Union List of Artist Names](http://www.getty.edu/research/tools/vocabularies/ulan/index.html))
 * [OpenNLP](https://opennlp.apache.org/)
