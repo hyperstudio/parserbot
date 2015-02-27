@@ -7,6 +7,7 @@ import config
 from parserbot import create_app
 
 headers = {'Authentication': hashlib.md5(config.SECRET_KEY).hexdigest()}
+sample_payload = 'This is a test for Pablo Picasso.'
 
 @pytest.fixture
 def app():
@@ -67,25 +68,25 @@ def test_hello_world(client):
 
 def test_stanford(client):
 	"""The Stanford endpoint should respond with an entity."""
-	res = post_request('run_stanford', 'This is a test for Pablo Picasso', client)
+	res = post_request('run_stanford', sample_payload, client)
 	assert res.status_code == 200
 	assert res.json['message'] == 'Success'
 	assert len(res.json['results']) == 1
 
 def test_opencalais(client):
 	"""The OpenCalais endpoint should respond with an entity."""
-	res = post_request('run_calais', 'This is a test for Pablo Picasso', client)
+	res = post_request('run_calais', sample_payload, client)
 	assert res.status_code == 200
 	assert len(res.json['results']) == 1
 
 def test_zemanta(client):
 	"""The Zemanta endpoint should respond with an entity."""
-	res = post_request('run_zemanta', 'This is a test for Pablo Picasso', client)
+	res = post_request('run_zemanta', sample_payload, client)
 	assert res.status_code == 200
 	assert len(res.json['results']) == 1
 
 def test_dbpedia(client):
-	res = post_request('run_dbpedia', 'This is a test for Pablo Picasso', client)
+	res = post_request('run_dbpedia', sample_payload, client)
 	assert res.status_code == 200
 	assert len(res.json['results']) == 1
 
