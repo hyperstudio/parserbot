@@ -6,12 +6,14 @@ bp = Blueprint('parserbot', __name__)
 
 
 def authorized():
-    return request.headers.get('Authentication') == hashlib.md5(app.config['SECRET_KEY']).hexdigest()
+    return request.headers.get('Authentication') == hashlib.md5(current_app.config['SECRET_KEY']).hexdigest()
 
 
 def handle(f):
     if not authorized():
         abort(403)
+    if request.json is None or request.json.get('payload') is None:
+        abort(422)
     payload = request.json.get('payload')
     return f(payload)
 
