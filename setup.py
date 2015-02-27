@@ -3,13 +3,13 @@ Install with `pip install .`
 """
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
+from setuptools.command.install import install
 import codecs
 import io
 import re
 import os
 import sys
-
-import parserbot
+import hashlib
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -44,6 +44,21 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+class CustomInstall(install):
+
+    def run(self):
+        install.run(self)
+
+        secret_key = os.urandom(24)
+        secret_key_digest = hashlib.md5(secret_key).hexdigest()
+        print "\n"
+        print "********************************"
+        print 'IMPORTANT!\n'
+        print 'Here is your secret key, place this in the `PARSERBOT_SECRET_KEY` environment variable: "%s"' % repr(secret_key)
+        print 'Here is the hash of your secret key, include this in the "Authentication" header of every request: "%s"' % secret_key_digest
+        print "\n"
+        print "********************************"
+
 setup(
     name='parserbot',
     version=find_version('parserbot', '__init__.py'),
@@ -55,7 +70,7 @@ setup(
         'nltk>=3.0.1',
         'requests>=2.5.1'
     ],
-    cmdclass={'test': PyTest},
+    cmdclass={'install': CustomInstall, 'test': PyTest},
     #license='LGPL' # TODO: decide on license
     author='MIT HyperStudio',
     author_email='hyperstudio@mit.edu',

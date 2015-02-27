@@ -15,12 +15,12 @@ Built for the [Artbot](http://github.com/hyperstudio/artbot-api) project on [Fla
 
 Best to do this in a [virtualenv](http://www.virtualenv.org/en/latest/), or even better, a [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). After setting up and activating the virtualenv:
 
-* `pip install .`
+* `pip install .` **Note: a secret key and its digest are generated and printed at the end of the install for your convenience. See below for use.**
 * `python run.py`
 
 **Note:** All resources require a valid secret key, and some (e.g. OpenCalais) need additional API keys. Set all API keys in environment variables:
 
-- `PARSERBOT_SECRET_KEY` is the app's secret key, which you need to generate and hash in order to get your "authentication token"
+- `PARSERBOT_SECRET_KEY` is the app's secret key, used for permissions. A hash of this key must go in the header of every request.
 - `CALAIS_API_KEY` is an [OpenCalais API key](http://www.opencalais.com/APIkey) for the `/opencalais` endpoint.
 - `ZEMANTA_API_KEY` is a [Zemanta API key](http://www.zemanta.com/developer/) for the `/zemanta` endpoint.
 - `FREEBASE_API_KEY` is...not currently in use.
