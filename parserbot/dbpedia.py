@@ -76,8 +76,7 @@ class DbpediaAPI(object):
         """
         Take a set of unlinked entities from the Stanford module and link them to DBpedia resources.
 
-        :param stanford_results: Formatted Stanford entities 
-        as returned by :py:meth:`parserbot.stanford.StanfordNER.extract_entities`.
+        :param stanford_results: Formatted Stanford entities as returned by :py:meth:`parserbot.stanford.StanfordNER.extract_entities`.
 
         :type stanford_results: dict
         """
