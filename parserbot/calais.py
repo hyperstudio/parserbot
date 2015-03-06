@@ -3,55 +3,87 @@ import config
 import uuid
 
 class CalaisAPI(object):
+    """
+    Interacts with the `OpenCalais API <http://www.opencalais.com/documentation/calais-web-service-api>`_.
 
-   def __init__(self, api_key=None, endpoint=None):
+    :param api_key: OpenCalais API key, defaults to ``CALAIS_API_KEY`` config variable.
+    :param endpoint: OpenCalais API endpoint URL, defaults to ``CALAIS_ENDPOINT`` config variable.
+    :type api_key: string
+    :type endpoint: string
+    """
+
+    def __init__(self, api_key=None, endpoint=None):
        self.api_key = api_key or config.CALAIS_API_KEY
        self.endpoint = endpoint or config.CALAIS_ENDPOINT
 
-   def call(self, payload, id_str=None):
-       if not id_str:
-           id_str = str(uuid.uuid4())
+    def call_api(self, payload):
+       """
+       Calls the Calais API endpoint with the given payload.
+
+       :param payload: Fulltext payload
+       :type payload: string
+       :return: dictionary with JSON response from the Calais API
+       """
        headers = {
            'x-calais-licenseID': '%s' % self.api_key,
            'content-type': 'text/raw',
            'accept': 'application/json',
            'enableMetadataType': "SocialTags",
            'calculateRelevanceScore': "true",
-           'externalID': "parserbot-%s" % id_str,
+           'externalID': "parserbot-%s" % uuid.uuid4(),
            }
        r = requests.post(self.endpoint, data=payload.encode('utf-8'), headers=headers)
        return r.json()
 
-def entity_call(payload, id_str=None):
-    results = CalaisAPI().call(payload, id_str)
-    finals = []
-    for key, entity in results.iteritems():
-        try:
-            typeGroup = entity["_typeGroup"]
-        except KeyError:
-            continue
-        if typeGroup == "socialTag":
-            name = entity["name"]
-            calais_id = entity["socialTag"]
-            score = 0.8 if int(entity["importance"]) > 1 else 0.6
-            entity_type = ""
-        elif typeGroup == "topics":
-            name = entity["categoryName"]
-            calais_id = entity["category"]
-            score = float(entity["score"]) if "score" in entity else 0.0
-            entity_type = ""
-        elif typeGroup == "entities":
-            name = entity["name"]
-            calais_id = key
-            score = float(entity["relevance"])
-            entity_type = entity.get("_type", "")
-        else:
-            continue
-        finals.append({
-            'name': name,
-            'calais_id': calais_id,
-            'score': score,
-            'entity_type': entity_type,
-            'type_group': typeGroup
-            })
-    return sorted(finals, key=lambda x: x['score'], reverse=True)
+    def process_results(self, results):
+        """
+        Takes a set of entity results such as those returned by :py:meth:`parserbot.calais.CalaisAPI.call_api`,
+        scores them and formats them for storage.
+
+        :param results: Results from the OpenCalais API.
+        :type results: dict
+        :return: Sorted list of topics, entities, and tags from OpenCalais.
+        """
+        formatted_results = []
+        for key, entity in results.iteritems():
+            try:
+                typeGroup = entity["_typeGroup"]
+            except KeyError:
+                continue
+            if typeGroup == "socialTag":
+                name = entity["name"]
+                calais_id = entity["socialTag"]
+                score = 0.8 if int(entity["importance"]) > 1 else 0.6
+                entity_type = ""
+            elif typeGroup == "topics":
+                name = entity["categoryName"]
+                calais_id = entity["category"]
+                score = float(entity["score"]) if "score" in entity else 0.0
+                entity_type = ""
+            elif typeGroup == "entities":
+                name = entity["name"]
+                calais_id = key
+                score = float(entity["relevance"])
+                entity_type = entity.get("_type", "")
+            else:
+                continue
+            formatted_results.append({
+                'name': name,
+                'calais_id': calais_id,
+                'score': score,
+                'entity_type': entity_type,
+                'type_group': typeGroup
+                })
+        return sorted(formatted_results, key=lambda x: x['score'], reverse=True)
+
+    def extract_entities(self, payload):
+        """
+        Takes a fulltext natural language payload, calls :py:meth:`parserbot.calais.CalaisAPI.call_api`,
+        then runs :py:meth:`parserbot.calais.CalaisAPI.process_results` on the results.
+
+        :param payload: Fulltext natural language payload.
+        :type payload: string
+        :return: Sorted list of topics, entities, and tags from OpenCalais.
+        """
+        results = self.call_api(payload)
+        return self.process_results(results)

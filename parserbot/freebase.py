@@ -3,7 +3,9 @@ import json
 import config
 
 def mql(query):
-    """ Main mql query. Put in any valid kwargs and get response. """
+    """
+    Main mql query. Put in any valid kwargs and get response.
+    """
     params = {
         "query": json.dumps(query),
         "key": config.FREEBASE_API_KEY
