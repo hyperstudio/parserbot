@@ -6,7 +6,7 @@
 parserbot
 =========
 
-Here is some documentation of parserbot's modules and methods. It contains endpoints for the app and API, as well as lower-level methods for the various parsers.
+Here is some documentation of parserbot's modules and methods. It contains endpoints for the app and API, as well as lower-level methods for the various parsers (currently: Stanford, OpenCalais, DBpedia, and sort of Freebase).
 
 .. toctree::
 	:maxdepth: 2
@@ -22,11 +22,6 @@ API
 
 .. automodule:: parserbot.api
 	:members:
-
-Parsers
-=======
-
-The parsers handle the querying and formatting of API requests and responses.
 
 Stanford
 ========

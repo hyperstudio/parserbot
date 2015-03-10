@@ -12,9 +12,9 @@ class ZemantaAPI(object):
     :type endpoint: string
     """
 
-    def __init__(self, api_key=config.ZEMANTA_API_KEY, endpoint=config.ZEMANTA_ENDPOINT):
-        self.API_KEY = api_key
-        self.ENDPOINT = endpoint
+    def __init__(self, api_key=None, endpoint=None):
+        self.API_KEY = api_key or config.ZEMANTA_API_KEY
+        self.ENDPOINT = endpoint or config.ZEMANTA_ENDPOINT
         self.session = requests.Session()
 
     def _access_api(self, params):

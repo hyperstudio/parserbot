@@ -31,6 +31,10 @@ class DbpediaAPI(object):
         """
         Queries DBpedia's `Spotlight API <https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki>`_ and
         processes the results to return only useful resources.
+
+        :param payload: Fulltext natural language payload.
+        :type payload: string
+        :return: List of JSON entities returned by DBpedia
         """
         results = self.spotlight_annotate(payload)
         return [resource['@URI'] for resource in results['Resources']]
@@ -77,7 +81,6 @@ class DbpediaAPI(object):
         Take a set of unlinked entities from the Stanford module and link them to DBpedia resources.
 
         :param stanford_results: Formatted Stanford entities as returned by :py:meth:`parserbot.stanford.StanfordNER.extract_entities`.
-
         :type stanford_results: dict
         """
         dbp_results = []
