@@ -4,7 +4,7 @@ This is the top-level module for parserbot. App-wide functions and error handler
 from flask import Flask, jsonify
 
 
-def create_app(settings_override=None):
+def create_parser_app(settings_override=None):
     """
     Create a parserbot app with overrideable default settings.
 

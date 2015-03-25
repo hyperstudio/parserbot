@@ -4,14 +4,14 @@ import json
 import requests
 from flask import url_for
 import config
-from parserbot import create_app
+from parserbot import create_parser_app
 
 headers = {'Authentication': hashlib.md5(config.SECRET_KEY).hexdigest()}
 sample_payload = 'This is a test for Pablo Picasso.'
 
 @pytest.fixture
 def app():
-	app = create_app()
+	app = create_parser_app()
 	return app
 
 def post_request(endpoint, payload, client):
@@ -86,6 +86,7 @@ def test_zemanta(client):
 	assert len(res.json['results']) == 1
 
 def test_dbpedia(client):
+	"""The Dbpedia endpoint should respond with an entity."""
 	res = post_request('run_dbpedia', sample_payload, client)
 	assert res.status_code == 200
 	assert len(res.json['results']) == 1
