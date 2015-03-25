@@ -1,6 +1,6 @@
+import urllib
 from urllib2 import urlopen
-import re 
-
+import re
 from bs4 import BeautifulSoup
 
 BASE_URL = "http://brandeis.edu/rose"
@@ -46,8 +46,8 @@ def get_event_info(event_url):
 	
 	# GET NAME
 	name = ""
-	text = content.find('div', {'id': 'contentText'})
-	for h2 in text.findAll('h2'):  # get exhibition title 
+	contentText = content.find('div', {'id': 'contentText'})
+	for h2 in contentText.findAll('h2'):  # get exhibition title 
 		string = h2.getText() 
 		title = re.sub('(\xa0)*\n', ':', string) #remove whitespace and tabs 
 		name += title.strip() 
@@ -58,18 +58,16 @@ def get_event_info(event_url):
 	loc = ""
 
 	
-	# GET EVENT DESCRIPTION 
-	body = content.find('tbody') # To get text 
-	text = "" # String to store all text for the exhibition 
-	for tr in body.findAll('tr'): 
-		text += tr.getText().strip() 
+	# GET EVENT DESCRIPTION
+	# matching paras have no class
+	paras = contentText.findAll('p', {'class': None})
+	text = '\n\n'.join([para.getText().strip() for para in paras])
 
-	
 	# GET IMAGE 
-	img = body.find('img')['src'] #Find image link 
-	match = re.sub('../../','',img)
+	img = content.find('img')['src'] #Find image link 
+	match = re.sub('../../','',img).strip()
+	match = '/'.join(match.split('/')[:-1]) + '/' + urllib.quote(match.split('/')[-1])
 	imageURL = BASE_URL + '/' + match  # add all images associated with event/exhibition
-	imageURL = imageURL.strip() 
 
 	return name, date, loc, text, imageURL  
 
