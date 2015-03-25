@@ -6,6 +6,6 @@ Werkzeug==0.9.4
 beautifulsoup4==4.3.2
 gunicorn==18.0
 itsdangerous==0.24
-nltk==2.0.4
-requests==2.2.1
+nltk==3.0.1
+requests==2.5.1
 wsgiref==0.1.2
