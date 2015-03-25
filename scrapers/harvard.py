@@ -1,8 +1,16 @@
 from urllib2 import urlopen
 import re 
 from bs4 import BeautifulSoup
+from urlparse import urlparse, urljoin
 
 BASE_URL = "http://www.harvardartmuseums.org"
+
+def strip_args(url):
+    """ Accepts URL as a string and strips arguments, avoiding flags """
+    for i in range(len(url)):
+        if url[i] == "?" or url[i] == "#":
+            return url[:i]
+    return url
 
 def make_soup(url): 
 	html = urlopen(url).read()
@@ -29,13 +37,14 @@ def get_link_events(link_url):
 
 # From current exhibition links, get relevant title, dates, and information 
 def get_event_info(event_url):
-	soup = make_soup(event_url) 
+	soup = make_soup(event_url)
 
 	if 'exhibitions' in event_url:
 		title = soup.find('h1', {'class': 'exhibition__title'}).text.strip()
 		date = soup.find('time', {'class': 'exhibition__date'}).text.strip()
-		img_elem = soup.find('div', {'class': 'slideshow-thumbs__main'}).img
-		image = img_elem['src'] if img_elem is not None else ""
+		# Harvard broke the main image, so just get the thumbnail slideshow
+		img_elem = soup.find('div', {'class': 'slideshow-thumbs__thumbs'})
+		image = strip_args(img_elem.img['src']) if img_elem is not None else ""
 		loc = soup.find('span', {'class': 'exhibition__host'}).text.strip()
 		innerHTML = soup.find('div', {'class': 'exhibition__inner'})
 		text = '\n\n'.join([i.text.strip() for i in innerHTML.findAll('p')])
@@ -46,7 +55,10 @@ def get_event_info(event_url):
 		time = soup.find('p', {'class': 'detail-page__type'}).time.text.strip()
 		date = date + " " + time
 		loc = soup.find('p', {'class': 'vcard'}).find('span', {'class': 'fn'}).text.strip()
-		image = soup.find('figure', {'class': 'detail-page__hero'}).img['src']
+
+		hero_elem = soup.find('figure', {'class': 'detail-page__hero'})
+		image = hero_elem.img['src'] if hero_elem is not None else ""
+
 		innerHTML = soup.find('div', {'class': 'detail-page__inner'})
 		text = '\n\n'.join([i.text.strip() for i in innerHTML.findAll('p', {'class': None})])
 
