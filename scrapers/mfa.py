@@ -1,9 +1,15 @@
+import urllib
 from urllib2 import urlopen
-import re 
-
+import re
 from bs4 import BeautifulSoup
 
 BASE_URL = "http://www.mfa.org"
+
+def urlquote_end(url):
+	pre_params, post_params = url.split('?')
+	split_url = pre_params.split('/')
+	split_url[-1] = urllib.quote(split_url[-1])
+	return '?'.join(['/'.join(split_url), post_params])
 
 def make_soup(url): 
 	html = urlopen(url).read()
@@ -62,6 +68,7 @@ def get_event_info(event_url):
 	# GET IMAGE 
 	imageURL = ""
 	imageURL = banner.findNext('section').find('img')['src']
+	imageURL = urlquote_end(imageURL)
 	if imageURL.startswith('//'):
 		imageURL = 'http:' + imageURL
 	elif imageURL.startswith('/'):
