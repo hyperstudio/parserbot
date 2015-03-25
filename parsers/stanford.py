@@ -6,7 +6,7 @@ import config
 def stanford_tag(sentence, classifier=config.STANFORD_DEFAULT_CLASSIFIER, jarfile=config.STANFORD_JARFILE):
     """ Takes any text and optional classifier/jarfile kwargs. Returns raw response from Stanford NER. """
     t = NERTagger(classifier, jarfile, encoding='utf-8')
-    return t.tag_sents([sentence.encode('utf-8').split()])
+    return t.batch_tag([sentence.encode('utf-8').split()])
 
 def get_entities(sentence, **kwargs):
     """ Takes any text and optional classifier/jarfile kwargs. Returns a dictionary """
