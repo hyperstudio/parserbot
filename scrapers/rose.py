@@ -5,6 +5,11 @@ from bs4 import BeautifulSoup
 
 BASE_URL = "http://brandeis.edu/rose"
 
+def urlquote_end(url):
+	split_url = url.split('/')
+	split_url[-1] = urllib.quote(split_url[-1])
+	return '/'.join(split_url)
+
 def make_soup(url): 
 	html = urlopen(url).read()
 	return BeautifulSoup(html)
@@ -66,7 +71,7 @@ def get_event_info(event_url):
 	# GET IMAGE 
 	img = content.find('img')['src'] #Find image link 
 	match = re.sub('../../','',img).strip()
-	match = '/'.join(match.split('/')[:-1]) + '/' + urllib.quote(match.split('/')[-1])
+	match = urlquote_end(match)
 	imageURL = BASE_URL + '/' + match  # add all images associated with event/exhibition
 
 	return name, date, loc, text, imageURL  
