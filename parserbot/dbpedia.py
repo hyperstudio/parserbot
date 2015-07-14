@@ -1,4 +1,6 @@
-import requests
+from urllib2 import urlopen, Request
+from urllib import urlencode
+import json
 
 DBPEDIA_ENDPOINT = "http://lookup.dbpedia.org/api/search.asmx/"
 SPOTLIGHT_ENDPOINT = "http://spotlight.dbpedia.org/rest/"
@@ -7,6 +9,13 @@ class DbpediaAPI(object):
     """
     Interacts with DBpedia API endpoints. No API key required.
     """
+
+    def get_json(self, url, params, headers):
+        r = Request(url+'?'+urlencode(params))
+        for k,v in headers.items():
+            r.add_header(k,v)
+        resp = urlopen(r)
+        return json.loads(resp.read())
 
     def spotlight_annotate(self, payload):
         """
@@ -24,8 +33,7 @@ class DbpediaAPI(object):
             "text": payload,
             "confidence": 0.3
         }
-        r = requests.get(url, params=params, headers=headers)
-        return r.json()
+        return self.get_json(url, params, headers)
 
     def extract_entities(self, payload):
         """
@@ -54,8 +62,7 @@ class DbpediaAPI(object):
             "QueryClass": "",
             "QueryString": keyword
         }
-        r = requests.get(url, params=params, headers=headers)
-        return r.json()
+        return self.get_json(url, params, headers)
 
     def prefix_search(self, prefix):
         """
@@ -73,8 +80,7 @@ class DbpediaAPI(object):
             "QueryString": prefix,
             "MaxHits": 5
         }
-        r = requests.get(url, params=params, headers=headers)
-        return r.json()
+        return self.get_json(url, params, headers)
 
     def wikify_stanford(self, stanford_results):
         """

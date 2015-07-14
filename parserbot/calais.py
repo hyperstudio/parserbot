@@ -1,4 +1,5 @@
-import requests
+from urllib2 import urlopen, Request
+import json
 import config
 import uuid
 
@@ -32,8 +33,11 @@ class CalaisAPI(object):
            'calculateRelevanceScore': "true",
            'externalID': "parserbot-%s" % uuid.uuid4(),
            }
-       r = requests.post(self.endpoint, data=payload.encode('utf-8'), headers=headers)
-       return r.json()
+       r = Request(self.endpoint, data=payload.encode('utf-8'))
+       for k,v in headers.items():
+           r.add_header(k,v)
+       resp = urlopen(r)
+       return json.loads(resp.read())
 
     def process_results(self, results):
         """

@@ -1,5 +1,6 @@
-import requests
-import urllib
+from urllib2 import urlopen, Request
+from urllib import urlencode
+import json
 import config
 
 class ZemantaAPI(object):
@@ -15,7 +16,6 @@ class ZemantaAPI(object):
     def __init__(self, api_key=None, endpoint=None):
         self.API_KEY = api_key or config.ZEMANTA_API_KEY
         self.ENDPOINT = endpoint or config.ZEMANTA_ENDPOINT
-        self.session = requests.Session()
 
     def _access_api(self, params):
         """
@@ -29,9 +29,10 @@ class ZemantaAPI(object):
             params['api_key'] = self.API_KEY
         if not 'format' in params.keys():
             params['format'] = 'json'
-        endpoint = "%s?%s" % (self.ENDPOINT, urllib.urlencode(params))
-        r = self.session.get(endpoint, timeout=8, allow_redirects=True)
-        return r.json()
+        endpoint = "%s?%s" % (self.ENDPOINT, urlencode(params))
+        r = Request(self.ENDPOINT+'?'+urlencode(params))
+        resp = urlopen(r, timeout=8)
+        return json.loads(resp.read())
 
     def suggest(self, text, **kwargs):
         """

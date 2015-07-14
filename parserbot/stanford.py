@@ -1,4 +1,8 @@
-from nltk.tag.stanford import NERTagger
+try:
+    from nltk.tag.stanford import NERTagger
+except ImportError:
+    print 'If you want to use the Stanford tagger, you need to install nltk (>= 3.0.1).'
+    NERTagger = None
 import config
 # Requires nltk library and plugins
 
@@ -24,6 +28,8 @@ class StanfordNER(object):
         :type payload: string
         :return: List of parsed sentences.
         """
+        if NERTagger is None:
+            return None
         return NERTagger(self.classifier, self.jarfile).tag_sents([payload.encode('ascii', 'ignore').split()])
 
 
@@ -71,5 +77,5 @@ class StanfordNER(object):
         """
         # Get the raw response
         sentences = self.run_tagger(payload)
-        entities = self.process_sentences(sentences)
+        entities = self.process_sentences(sentences or [])
         return entities

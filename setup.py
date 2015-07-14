@@ -65,19 +65,17 @@ setup(
     url='http://github.com/mailbackwards/parserbot/',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        'Flask>=0.10.1',
-        'nltk>=3.0.1',
-        'requests>=2.5.1'
-    ],
+    install_requires=['Flask>=0.10.1'],
     cmdclass={'install': CustomInstall, 'test': PyTest},
-    #license='LGPL' # TODO: decide on license
+    license='GPL2',
     author='MIT HyperStudio',
     author_email='hyperstudio@mit.edu',
     test_suite='test',
     tests_require=['pytest'],
     extras_require={
-        'testing': ['pytest'],
+        'testing': ['pytest>=2.6.4', 'pytest-flask>=0.6.0'],
+        'docs': ['Sphinx>=1.2.3'],
+        'stanford_ner': ['nltk>=3.0.1']
     },
     description='Natural Language services and APIs all in one place',
     long_description=long_description
