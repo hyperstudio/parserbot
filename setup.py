@@ -10,6 +10,8 @@ import re
 import os
 import sys
 import hashlib
+import random
+import string
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -49,20 +51,18 @@ class CustomInstall(install):
     def run(self):
         install.run(self)
 
-        secret_key = os.urandom(24)
+        secret_key = ''.join(random.choice(string.hexdigits) for _ in range(32))
         secret_key_digest = hashlib.md5(secret_key).hexdigest()
-        print "\n"
-        print "********************************"
+        print "\n********************************"
         print 'IMPORTANT!\n'
-        print 'Here is your secret key, place this in the `PARSERBOT_SECRET_KEY` environment variable: "%s"' % repr(secret_key)
+        print 'Here is your secret key, place this in the `PARSERBOT_SECRET_KEY` environment variable: "%s"' % secret_key
         print 'Here is the hash of your secret key, include this in the "Authentication" header of every request: "%s"' % secret_key_digest
-        print "\n"
-        print "********************************"
+        print "\n********************************"
 
 setup(
     name='parserbot',
     version=find_version('parserbot', '__init__.py'),
-    url='http://github.com/mailbackwards/parserbot/',
+    url='http://github.com/hyperstudio/parserbot/',
     packages=find_packages(),
     include_package_data=True,
     install_requires=['Flask>=0.10.1'],

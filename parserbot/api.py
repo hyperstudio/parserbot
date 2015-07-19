@@ -74,7 +74,7 @@ def hello_world():
     """
     message = {
         'status': 200,
-        'message': 'Hello world! Find me on github at https://github.com/mailbackwards/parserbot'
+        'message': 'Hello world! Find me on github at https://github.com/hyperstudio/parserbot'
     }
     resp = jsonify(message)
     resp.status_code = 200

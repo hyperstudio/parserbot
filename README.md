@@ -13,10 +13,12 @@ Built for the [Artbot](http://github.com/hyperstudio/artbot-api) project on [Fla
 
 ### Setup
 
-Best to do this in a [virtualenv](http://www.virtualenv.org/en/latest/), or even better, a [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). After setting up and activating the virtualenv:
+Tested with Python 2.7.x. Setup within a [virtualenv](http://www.virtualenv.org/en/latest/) is recommended, or even better, a [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). After cloning the repo and activating the virtualenv:
 
-* `pip install .` *Note: a secret key and its digest are generated and printed at the end of the install for your convenience. See below for use.*
+* `python setup.py install`
+* the install script will spit out a `PARSERBOT_SECRET_KEY` variable and authentication header token. Save these in environment variables (e.g. a shell profile, `.env` file, etc.)
 * `python run.py`
+* navigate to (http://localhost:3000) and you should see a welcome message
 
 **Note:** All resources require a valid secret key, and some (e.g. OpenCalais) need additional API keys. Set all API keys in environment variables:
 
