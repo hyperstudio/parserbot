@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>parserbot.dbpedia &mdash; parserbot 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="parserbot 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="parserbot" href="../parserbot.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../parserbot.html" accesskey="U">parserbot</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for parserbot.dbpedia</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">DBPEDIA_ENDPOINT</span> <span class="o">=</span> <span class="s">&quot;http://lookup.dbpedia.org/api/search.asmx/&quot;</span>
+<span class="n">SPOTLIGHT_ENDPOINT</span> <span class="o">=</span> <span class="s">&quot;http://spotlight.dbpedia.org/rest/&quot;</span>
+
+<div class="viewcode-block" id="DbpediaAPI"><a class="viewcode-back" href="../../index.html#parserbot.dbpedia.DbpediaAPI">[docs]</a><span class="k">class</span> <span class="nc">DbpediaAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interacts with DBpedia API endpoints. No API key required.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="o">+</span><span class="s">&#39;?&#39;</span><span class="o">+</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<div class="viewcode-block" id="DbpediaAPI.spotlight_annotate"><a class="viewcode-back" href="../../index.html#parserbot.dbpedia.DbpediaAPI.spotlight_annotate">[docs]</a>    <span class="k">def</span> <span class="nf">spotlight_annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries DBpedia&#39;s `Spotlight API &lt;https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki&gt;`_.</span>
+
+<span class="sd">        :param payload: Fulltext natural language payload.</span>
+<span class="sd">        :type payload: string</span>
+<span class="sd">        :return: Dictionary of JSON response from DBpedia</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">SPOTLIGHT_ENDPOINT</span> <span class="o">+</span> <span class="s">&quot;annotate&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;accept&quot;</span><span class="p">:</span> <span class="s">&quot;application/json&quot;</span>
+        <span class="p">}</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;text&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">,</span>
+            <span class="s">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DbpediaAPI.extract_entities"><a class="viewcode-back" href="../../index.html#parserbot.dbpedia.DbpediaAPI.extract_entities">[docs]</a>    <span class="k">def</span> <span class="nf">extract_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries DBpedia&#39;s `Spotlight API &lt;https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki&gt;`_ and</span>
+<span class="sd">        processes the results to return only useful resources.</span>
+
+<span class="sd">        :param payload: Fulltext natural language payload.</span>
+<span class="sd">        :type payload: string</span>
+<span class="sd">        :return: List of JSON entities returned by DBpedia</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spotlight_annotate</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">resource</span><span class="p">[</span><span class="s">&#39;@URI&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;Resources&#39;</span><span class="p">]]</span>
+</div>
+<div class="viewcode-block" id="DbpediaAPI.keyword_search"><a class="viewcode-back" href="../../index.html#parserbot.dbpedia.DbpediaAPI.keyword_search">[docs]</a>    <span class="k">def</span> <span class="nf">keyword_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries DBpedia&#39;s keyword search API to get a list of matching entities to the provided keyword.</span>
+
+<span class="sd">        :param keyword: Keyword to use in query.</span>
+<span class="sd">        :type keyword: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">DBPEDIA_ENDPOINT</span> <span class="o">+</span> <span class="s">&quot;KeywordSearch&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;accept&quot;</span><span class="p">:</span> <span class="s">&quot;application/json&quot;</span>
+        <span class="p">}</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;QueryClass&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;QueryString&quot;</span><span class="p">:</span> <span class="n">keyword</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DbpediaAPI.prefix_search"><a class="viewcode-back" href="../../index.html#parserbot.dbpedia.DbpediaAPI.prefix_search">[docs]</a>    <span class="k">def</span> <span class="nf">prefix_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search by prefix, used for autocomplete.</span>
+
+<span class="sd">        :param prefix: Text prefix.</span>
+<span class="sd">        :type prefix: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">DBPEDIA_ENDPOINT</span> <span class="o">+</span> <span class="s">&quot;PrefixSearch&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;accept&quot;</span><span class="p">:</span> <span class="s">&quot;application/json&quot;</span>
+        <span class="p">}</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;QueryClass&quot;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;QueryString&quot;</span><span class="p">:</span> <span class="n">prefix</span><span class="p">,</span>
+            <span class="s">&quot;MaxHits&quot;</span><span class="p">:</span> <span class="mi">5</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DbpediaAPI.wikify_stanford"><a class="viewcode-back" href="../../index.html#parserbot.dbpedia.DbpediaAPI.wikify_stanford">[docs]</a>    <span class="k">def</span> <span class="nf">wikify_stanford</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stanford_results</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take a set of unlinked entities from the Stanford module and link them to DBpedia resources.</span>
+
+<span class="sd">        :param stanford_results: Formatted Stanford entities as returned by :py:meth:`parserbot.stanford.StanfordNER.extract_entities`.</span>
+<span class="sd">        :type stanford_results: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dbp_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entity_type</span><span class="p">,</span> <span class="n">entity_list</span> <span class="ow">in</span> <span class="n">stanford_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">entity_list</span><span class="p">:</span>
+                <span class="n">dbp_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_search</span><span class="p">(</span><span class="n">keyword</span><span class="p">)[</span><span class="s">&#39;results&#39;</span><span class="p">]</span>
+                <span class="n">dbp_resource</span> <span class="o">=</span> <span class="n">dbp_response</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">dbp_response</span> <span class="k">else</span> <span class="p">{}</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s">&#39;uri&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                    <span class="s">&#39;stanford_type&#39;</span><span class="p">:</span> <span class="n">entity_type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                    <span class="s">&#39;stanford_name&#39;</span><span class="p">:</span> <span class="n">keyword</span>
+                <span class="p">}</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dbp_resource</span><span class="p">)</span>
+                <span class="n">dbp_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dbp_results</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../parserbot.html" >parserbot</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, MIT HyperStudio.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

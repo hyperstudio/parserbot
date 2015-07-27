@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>parserbot.zemanta &mdash; parserbot 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="parserbot 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="parserbot" href="../parserbot.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../parserbot.html" accesskey="U">parserbot</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for parserbot.zemanta</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">config</span>
+
+<div class="viewcode-block" id="ZemantaAPI"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI">[docs]</a><span class="k">class</span> <span class="nc">ZemantaAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interacts with the `Zemanta API &lt;http://zemanta.github.io/zemapi-java/&gt;`_.</span>
+
+<span class="sd">    :param api_key: Zemanta API key. Defaults to the ``ZEMANTA_API_KEY`` config variable.</span>
+<span class="sd">    :param endpoint: Zemanta endpoint URL. Defaults to the ``ZEMANTA_ENDPOINT`` config variable.</span>
+<span class="sd">    :type api_key: string</span>
+<span class="sd">    :type endpoint: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span> <span class="o">=</span> <span class="n">api_key</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">ZEMANTA_API_KEY</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ENDPOINT</span> <span class="o">=</span> <span class="n">endpoint</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">ZEMANTA_ENDPOINT</span>
+
+    <span class="k">def</span> <span class="nf">_access_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Low-level request to the Zemanta API with given request params.</span>
+
+<span class="sd">        :param params: Preferences and filters for the Zemanta API</span>
+<span class="sd">        :type params: dict</span>
+<span class="sd">        :return: Dict of Zemanta entities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;api_key&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">params</span><span class="p">[</span><span class="s">&#39;api_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;format&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">params</span><span class="p">[</span><span class="s">&#39;format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;json&#39;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">?</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ENDPOINT</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ENDPOINT</span><span class="o">+</span><span class="s">&#39;?&#39;</span><span class="o">+</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<div class="viewcode-block" id="ZemantaAPI.suggest"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.suggest">[docs]</a>    <span class="k">def</span> <span class="nf">suggest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls the Zemanta API&#39;s ``suggest`` endpoint with arbitrary keyword arguments.</span>
+
+<span class="sd">        :param text: Payload natural language fulltext.</span>
+<span class="sd">        :type text: string</span>
+<span class="sd">        :return: Dictionary of Zemanta entities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;zemanta.suggest&#39;</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access_api</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ZemantaAPI.suggest_markup"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.suggest_markup">[docs]</a>    <span class="k">def</span> <span class="nf">suggest_markup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">emphasis</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_rdf_links</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">markup_limit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls the Zemanta API&#39;s ``suggest_markup`` endpoint.</span>
+
+<span class="sd">        :param text: Payload in natural language fulltext.</span>
+<span class="sd">        :param emphasis: Highlight matching words (defaults to False)</span>
+<span class="sd">        :param return_rdf_links: Include linked data URIs for each entity (defaults to True)</span>
+<span class="sd">        :param markup_limit: Set ``markup_limit`` (defaults to None)</span>
+<span class="sd">        :type text: string</span>
+<span class="sd">        :type emphasis: bool</span>
+<span class="sd">        :type return_rdf_links: bool</span>
+<span class="sd">        :type markup_limit: bool</span>
+<span class="sd">        :return: Dictionary of Zemanta entities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;zemanta.suggest_markup&#39;</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">emphasis</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s">&#39;emphasis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">emphasis</span>
+        <span class="k">if</span> <span class="n">return_rdf_links</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s">&#39;return_rdf_links&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;1&#39;</span>
+        <span class="k">if</span> <span class="n">markup_limit</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s">&#39;markup_limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">markup_limit</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access_api</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ZemantaAPI.preferences"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.preferences">[docs]</a>    <span class="k">def</span> <span class="nf">preferences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets your current Zemanta user preferences and status.</span>
+
+<span class="sd">        :return: Dictionary of preferences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;zemanta.preferences&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access_api</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ZemantaAPI.extract_entities"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.extract_entities">[docs]</a>    <span class="k">def</span> <span class="nf">extract_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a text string as payload and returns any Zemanta markup entities found.</span>
+
+<span class="sd">        First calls :py:meth:`parserbot.zemanta.ZemantaAPI.suggest_markup`, then formats the results for storage.</span>
+
+<span class="sd">        :param payload: Fulltext natural language payload.</span>
+<span class="sd">        :type payload: string</span>
+<span class="sd">        :return: List of Zemanta entities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">suggest_markup</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">return_rdf_links</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;markup&#39;</span><span class="p">][</span><span class="s">&#39;links&#39;</span><span class="p">]:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;entity_type&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;entity_type&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;entity_type&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                <span class="s">&#39;targets&#39;</span><span class="p">:</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">target</span><span class="p">[</span><span class="s">&#39;url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;target&#39;</span><span class="p">]]),</span>
+                <span class="s">&#39;relevance&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;relevance&#39;</span><span class="p">],</span>
+                <span class="s">&#39;confidence&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;confidence&#39;</span><span class="p">],</span>
+                <span class="s">&#39;anchor&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;anchor&#39;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entities</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../parserbot.html" >parserbot</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, MIT HyperStudio.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

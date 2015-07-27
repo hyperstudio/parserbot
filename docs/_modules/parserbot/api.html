@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>parserbot.api &mdash; parserbot 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="parserbot 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="parserbot" href="../parserbot.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../parserbot.html" accesskey="U">parserbot</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for parserbot.api</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module wraps the various parsers into a Flask request/response pattern.</span>
+<span class="sd">This includes authorization, validation, and response handling features.</span>
+
+<span class="sd">.. note:: **All functions** within this module require **two things**:</span>
+
+<span class="sd">    - An ``Authentication`` header that is a md5 hash of your application&#39;s secret key.</span>
+<span class="sd">    - ``POST`` request data that has a ``payload`` key.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span><span class="p">,</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">abort</span>
+<span class="kn">from</span> <span class="nn">parserbot</span> <span class="kn">import</span> <span class="n">calais</span><span class="p">,</span> <span class="n">dbpedia</span><span class="p">,</span> <span class="n">stanford</span><span class="p">,</span> <span class="n">zemanta</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="n">bp</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s">&#39;parserbot&#39;</span><span class="p">,</span> <span class="n">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_authorized</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks to see if the Authentication header is a hash of this application&#39;s secret key.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Authentication&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_valid_request</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks to see if the request has a JSON payload with `payload` argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;payload&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks authorization and validity of request, and runs `func` on the request payload.</span>
+
+<span class="sd">    :param func: Function to run using the request payload as an argument.</span>
+<span class="sd">    :type func: function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_authorized</span><span class="p">():</span>
+        <span class="n">abort</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">_valid_request</span><span class="p">():</span>
+        <span class="n">abort</span><span class="p">(</span><span class="mi">422</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;payload&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_respond</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates JSON response with provided results.</span>
+
+<span class="sd">    :param results: List of items returned by a given parser.</span>
+<span class="sd">    :type results: list of dictionaries</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="s">&#39;Success&#39;</span><span class="p">,</span>
+        <span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">),</span>
+        <span class="s">&#39;results&#39;</span><span class="p">:</span> <span class="n">results</span>
+    <span class="p">}</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="k">return</span> <span class="n">resp</span>
+
+
+<span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="hello_world"><a class="viewcode-back" href="../../index.html#parserbot.api.hello_world">[docs]</a><span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used for the ``/`` endpoint. No authorization or payload needed; used for testing purposes.</span>
+
+<span class="sd">    :return: JSON response object with status and message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="s">&#39;Hello world! Find me on github at https://github.com/hyperstudio/parserbot&#39;</span>
+    <span class="p">}</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="k">return</span> <span class="n">resp</span>
+
+</div>
+<span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/opencalais&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="run_calais"><a class="viewcode-back" href="../../index.html#parserbot.api.run_calais">[docs]</a><span class="k">def</span> <span class="nf">run_calais</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used for the ``/opencalais`` endpoint. Calls :py:meth:`parserbot.calais.CalaisAPI.extract_entities`.</span>
+
+<span class="sd">    :return: JSON response object with matching entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">calais</span><span class="o">.</span><span class="n">CalaisAPI</span><span class="p">()</span><span class="o">.</span><span class="n">extract_entities</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_respond</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+</div>
+<span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/zemanta&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="run_zemanta"><a class="viewcode-back" href="../../index.html#parserbot.api.run_zemanta">[docs]</a><span class="k">def</span> <span class="nf">run_zemanta</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used for the ``/zemanta`` endpoint. Calls :py:meth:`parserbot.zemanta.ZemantaAPI.extract_entities`.</span>
+
+<span class="sd">    :return: JSON response object with matching entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">zemanta</span><span class="o">.</span><span class="n">ZemantaAPI</span><span class="p">()</span><span class="o">.</span><span class="n">extract_entities</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_respond</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+</div>
+<span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/stanford&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="run_stanford"><a class="viewcode-back" href="../../index.html#parserbot.api.run_stanford">[docs]</a><span class="k">def</span> <span class="nf">run_stanford</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used for the ``/stanford`` endpoint. Runs methods in two stages:</span>
+
+<span class="sd">    - Calls :py:meth:`parserbot.stanford.StanfordNER.extract_entities` and dedupes the results</span>
+<span class="sd">    - Runs the results through :py:meth:`dbpedia.DbpediaAPI.wikify_stanford` to link the entities to Wikipedia</span>
+
+<span class="sd">    :return: JSON response object with matching entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stanford_results</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">stanford</span><span class="o">.</span><span class="n">StanfordNER</span><span class="p">()</span><span class="o">.</span><span class="n">extract_entities</span><span class="p">)</span>
+    <span class="c"># dedupe the lists so that we aren&#39;t calling dbpedia repeatedly</span>
+    <span class="n">stanford_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">stanford_results</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="c"># now get dbpedia URLs for them</span>
+    <span class="n">dbp_results</span> <span class="o">=</span> <span class="n">dbpedia</span><span class="o">.</span><span class="n">DbpediaAPI</span><span class="p">()</span><span class="o">.</span><span class="n">wikify_stanford</span><span class="p">(</span><span class="n">stanford_results</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_respond</span><span class="p">(</span><span class="n">dbp_results</span><span class="p">)</span>
+
+</div>
+<span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/dbpedia&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="run_dbpedia"><a class="viewcode-back" href="../../index.html#parserbot.api.run_dbpedia">[docs]</a><span class="k">def</span> <span class="nf">run_dbpedia</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used for the ``/dbpedia`` endpoint. Calls :py:meth:`parserbot.dbpedia.DbpediaAPI.get_entities`</span>
+
+<span class="sd">    :return: JSON response object with matching entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">dbpedia</span><span class="o">.</span><span class="n">DbpediaAPI</span><span class="p">()</span><span class="o">.</span><span class="n">extract_entities</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_respond</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../parserbot.html" >parserbot</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, MIT HyperStudio.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

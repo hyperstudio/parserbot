@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>parserbot &mdash; parserbot 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="parserbot 0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for parserbot</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is the top-level module for parserbot. App-wide functions and error handlers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span>
+
+
+<div class="viewcode-block" id="create_parser_app"><a class="viewcode-back" href="../index.html#parserbot.create_parser_app">[docs]</a><span class="k">def</span> <span class="nf">create_parser_app</span><span class="p">(</span><span class="n">settings_override</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a parserbot app with overrideable default settings.</span>
+
+<span class="sd">    :param settings_override: custom Flask settings to override the defaults</span>
+<span class="sd">    :type settings_override: dictionary</span>
+<span class="sd">    :return: Flask app object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">settings_override</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">settings_override</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">parserbot.api</span> <span class="kn">import</span> <span class="n">bp</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">bp</span><span class="p">)</span>
+
+    <span class="c"># Set up error handlers here because Flask doesn&#39;t let you do the 500 error in the blueprint</span>
+    <span class="c"># https://github.com/mitsuhiko/flask/blob/5b9826615267fd75a954db40c1decc2a9dc40a99/flask/app.py#L1140</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)(</span><span class="n">_on_500</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)(</span><span class="n">_on_404</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">403</span><span class="p">)(</span><span class="n">_on_403</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">422</span><span class="p">)(</span><span class="n">_on_422</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">app</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_on_500</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s">&#39;Internal server error&#39;</span>
+    <span class="p">}</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="k">return</span> <span class="n">resp</span>
+
+
+<span class="k">def</span> <span class="nf">_on_404</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s">&#39;Not Found&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">404</span>
+    <span class="k">return</span> <span class="n">resp</span>
+
+
+<span class="k">def</span> <span class="nf">_on_403</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">403</span><span class="p">,</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s">&#39;Forbidden&#39;</span>
+    <span class="p">}</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">403</span>
+    <span class="k">return</span> <span class="n">resp</span>
+
+<span class="k">def</span> <span class="nf">_on_422</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">422</span><span class="p">,</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s">&#39;Unprocessable entity&#39;</span>
+    <span class="p">}</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">422</span>
+    <span class="k">return</span> <span class="n">resp</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;0.1&#39;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">parserbot 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, MIT HyperStudio.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
