@@ -24,20 +24,20 @@ Tested with Python 2.7.x. Setup within a [virtualenv](http://www.virtualenv.org/
 
 Setting up specific NLP services:
 
-#### Stanford NER -- `/stanford`
+##### Stanford NER -- `/stanford`
 
 * you must have [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) of some flavor installed
 * `pip install nltk==3.0.1`
 
-#### OpenCalais -- `/opencalais`
+##### OpenCalais -- `/opencalais`
 
 * get an [OpenCalais API key](http://www.opencalais.com/APIkey) and set as a `CALAIS_API_KEY` environment variable
 
-#### Zemanta -- `/zemanta`
+##### Zemanta -- `/zemanta`
 
 * get a [Zemanta API key](http://www.zemanta.com/developer/) and set as a `ZEMANTA_API_KEY` environment variable
 
-#### Freebase
+##### Freebase
 
 * not currently configured. If you set it up, let us know!
 
@@ -47,7 +47,9 @@ Python example:
 
 	headers = {'Authentication': '<YOUR_TOKEN_HERE>', 'Content-Type': 'application/json'}
 	data = json.dumps({'payload': 'This is a test for a man named Pablo Picasso'})
-	r = requests.post('http://127.0.0.1:5000/stanford', data=data, headers=headers)
+	r = requests.post('http://localhost:3000/stanford', data=data, headers=headers)
+
+If you want to play in the shell, you can use `python shell.py`
 
 ### Tests
 
@@ -58,10 +60,10 @@ Tests are built for local setup only for now:
 
 ### Documentation
 
-You can find the docs in the `docs/` subfolder. To generate new docs:
+You can find the docs in the `docs` subfolder. To generate new docs:
 
 * `pip install sphinx`
-* `sphinx-build docs/source docs/`
+* `sphinx-build docs/source docs`
 
 ### Deployment
 
