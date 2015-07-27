@@ -1,7 +1,7 @@
 import pytest
 import hashlib
 import json
-import requests
+from urllib2 import urlopen
 from flask import url_for
 import config
 from parserbot import create_parser_app
@@ -17,8 +17,8 @@ def app():
 def post_request(endpoint, payload, client):
 	data = {'payload': payload}
 	res = client.post(url_for('.'+endpoint),
-		data=json.dumps(data), 
-		headers=headers, 
+		data=json.dumps(data),
+		headers=headers,
 		content_type='application/json')
 	return res
 
@@ -100,6 +100,6 @@ def test_no_entities_in_payload(client):
 # Live!
 
 def test_server_is_running(live_server):
-	res = requests.get(url_for('.hello_world', _external=True))
-	assert res.status_code == 200
-	assert 'Hello world!' in res.json()['message']
+	res = urlopen(url_for('.hello_world', _external=True))
+	assert res.getcode() == 200
+	assert 'Hello world!' in json.loads(res.read())['message']
