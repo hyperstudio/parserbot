@@ -20,9 +20,9 @@ class StanfordNER(object):
 
 
     def run_tagger(self, payload):
-        """        
+        """
         Runs :py:meth:`nltk.tag.stanford.NERTagger.tag_sents` on the provided text
-        (http://www.nltk.org/api/nltk.tag.html#nltk.tag.stanford.StanfordTagger.tag_sents)
+        (http://www.nltk.org/api/nltk.tag.html#nltk.tag.stanford.NERTagger.tag_sents)
 
         :param payload: Fulltext payload.
         :type payload: string
