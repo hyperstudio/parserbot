@@ -57,8 +57,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interacts with the `Zemanta API &lt;http://zemanta.github.io/zemapi-java/&gt;`_.</span>
 
-<span class="sd">    :param api_key: Zemanta API key. Defaults to the ``ZEMANTA_API_KEY`` config variable.</span>
-<span class="sd">    :param endpoint: Zemanta endpoint URL. Defaults to the ``ZEMANTA_ENDPOINT`` config variable.</span>
+<span class="sd">    :param api_key: Zemanta API key.</span>
+<span class="sd">        Defaults to the ``ZEMANTA_API_KEY`` config variable.</span>
+<span class="sd">    :param endpoint: Zemanta endpoint URL.</span>
+<span class="sd">        Defaults to the ``ZEMANTA_ENDPOINT`` config variable.</span>
 <span class="sd">    :type api_key: string</span>
 <span class="sd">    :type endpoint: string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -75,18 +77,18 @@
 <span class="sd">        :type params: dict</span>
 <span class="sd">        :return: Dict of Zemanta entities.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;api_key&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">params</span><span class="p">[</span><span class="s">&#39;api_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;format&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">params</span><span class="p">[</span><span class="s">&#39;format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;json&#39;</span>
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">?</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ENDPOINT</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s">&#39;api_key&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">,</span>
+            <span class="s">&#39;format&#39;</span><span class="p">:</span> <span class="s">&#39;json&#39;</span>
+        <span class="p">})</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ENDPOINT</span><span class="o">+</span><span class="s">&#39;?&#39;</span><span class="o">+</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
 <div class="viewcode-block" id="ZemantaAPI.suggest"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.suggest">[docs]</a>    <span class="k">def</span> <span class="nf">suggest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calls the Zemanta API&#39;s ``suggest`` endpoint with arbitrary keyword arguments.</span>
+<span class="sd">        Calls the Zemanta API&#39;s ``suggest`` endpoint with arbitrary keyword</span>
+<span class="sd">        arguments.</span>
 
 <span class="sd">        :param text: Payload natural language fulltext.</span>
 <span class="sd">        :type text: string</span>
@@ -104,13 +106,15 @@
             <span class="n">params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access_api</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ZemantaAPI.suggest_markup"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.suggest_markup">[docs]</a>    <span class="k">def</span> <span class="nf">suggest_markup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">emphasis</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_rdf_links</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">markup_limit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ZemantaAPI.suggest_markup"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.suggest_markup">[docs]</a>    <span class="k">def</span> <span class="nf">suggest_markup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">emphasis</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">return_rdf_links</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">markup_limit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calls the Zemanta API&#39;s ``suggest_markup`` endpoint.</span>
 
 <span class="sd">        :param text: Payload in natural language fulltext.</span>
 <span class="sd">        :param emphasis: Highlight matching words (defaults to False)</span>
-<span class="sd">        :param return_rdf_links: Include linked data URIs for each entity (defaults to True)</span>
+<span class="sd">        :param return_rdf_links: Include linked data URIs for each entity</span>
+<span class="sd">            (defaults to True)</span>
 <span class="sd">        :param markup_limit: Set ``markup_limit`` (defaults to None)</span>
 <span class="sd">        :type text: string</span>
 <span class="sd">        :type emphasis: bool</span>
@@ -140,25 +144,24 @@
 </div>
 <div class="viewcode-block" id="ZemantaAPI.extract_entities"><a class="viewcode-back" href="../../index.html#parserbot.zemanta.ZemantaAPI.extract_entities">[docs]</a>    <span class="k">def</span> <span class="nf">extract_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes a text string as payload and returns any Zemanta markup entities found.</span>
+<span class="sd">        Takes a text string as payload and returns any Zemanta markup</span>
+<span class="sd">        entities found.</span>
 
-<span class="sd">        First calls :py:meth:`parserbot.zemanta.ZemantaAPI.suggest_markup`, then formats the results for storage.</span>
+<span class="sd">        First calls :py:meth:`parserbot.zemanta.ZemantaAPI.suggest_markup`,</span>
+<span class="sd">        then formats the results for storage.</span>
 
 <span class="sd">        :param payload: Fulltext natural language payload.</span>
 <span class="sd">        :type payload: string</span>
 <span class="sd">        :return: List of Zemanta entities.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">suggest_markup</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">return_rdf_links</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;markup&#39;</span><span class="p">][</span><span class="s">&#39;links&#39;</span><span class="p">]:</span>
-            <span class="n">entity</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&#39;entity_type&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;entity_type&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;entity_type&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
-                <span class="s">&#39;targets&#39;</span><span class="p">:</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">target</span><span class="p">[</span><span class="s">&#39;url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;target&#39;</span><span class="p">]]),</span>
-                <span class="s">&#39;relevance&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;relevance&#39;</span><span class="p">],</span>
-                <span class="s">&#39;confidence&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;confidence&#39;</span><span class="p">],</span>
-                <span class="s">&#39;anchor&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;anchor&#39;</span><span class="p">]</span>
-            <span class="p">}</span>
-            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="p">[{</span>
+            <span class="s">&#39;entity_type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="s">&#39;entity_type&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="s">&#39;&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s">&#39;targets&#39;</span><span class="p">:</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">t</span><span class="p">[</span><span class="s">&#39;url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;target&#39;</span><span class="p">]]),</span>
+            <span class="s">&#39;relevance&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;relevance&#39;</span><span class="p">],</span>
+            <span class="s">&#39;confidence&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;confidence&#39;</span><span class="p">],</span>
+            <span class="s">&#39;anchor&#39;</span><span class="p">:</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;anchor&#39;</span><span class="p">]</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;markup&#39;</span><span class="p">][</span><span class="s">&#39;links&#39;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">entities</span></div></div>
 </pre></div>
 

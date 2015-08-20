@@ -57,8 +57,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interacts with the `OpenCalais API &lt;http://www.opencalais.com/documentation/calais-web-service-api&gt;`_.</span>
 
-<span class="sd">    :param api_key: OpenCalais API key, defaults to ``CALAIS_API_KEY`` config variable.</span>
-<span class="sd">    :param endpoint: OpenCalais API endpoint URL, defaults to ``CALAIS_ENDPOINT`` config variable.</span>
+<span class="sd">    :param api_key: OpenCalais API key, defaults to ``CALAIS_API_KEY``</span>
+<span class="sd">        config variable.</span>
+<span class="sd">    :param endpoint: OpenCalais API endpoint URL, defaults to</span>
+<span class="sd">        ``CALAIS_ENDPOINT`` config variable.</span>
 <span class="sd">    :type api_key: string</span>
 <span class="sd">    :type endpoint: string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -68,28 +70,29 @@
        <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoint</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">CALAIS_ENDPOINT</span>
 
 <div class="viewcode-block" id="CalaisAPI.call_api"><a class="viewcode-back" href="../../index.html#parserbot.calais.CalaisAPI.call_api">[docs]</a>    <span class="k">def</span> <span class="nf">call_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
-       <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">       Calls the Calais API endpoint with the given payload.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls the Calais API endpoint with the given payload.</span>
 
-<span class="sd">       :param payload: Fulltext payload</span>
-<span class="sd">       :type payload: string</span>
-<span class="sd">       :return: dictionary with JSON response from the Calais API</span>
-<span class="sd">       &quot;&quot;&quot;</span>
-       <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+<span class="sd">        :param payload: Fulltext payload</span>
+<span class="sd">        :type payload: string</span>
+<span class="sd">        :return: dictionary with JSON response from the Calais API</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
            <span class="s">&#39;X-AG-Access-Token&#39;</span><span class="p">:</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">,</span>
            <span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;text/raw&#39;</span><span class="p">,</span>
            <span class="s">&#39;OutputFormat&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
            <span class="s">&#39;X-Calais_Language&#39;</span><span class="p">:</span> <span class="s">&#39;English&#39;</span>
-           <span class="p">}</span>
-       <span class="n">r</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
-       <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
            <span class="n">r</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-       <span class="n">resp</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-       <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </div>
 <div class="viewcode-block" id="CalaisAPI.process_results"><a class="viewcode-back" href="../../index.html#parserbot.calais.CalaisAPI.process_results">[docs]</a>    <span class="k">def</span> <span class="nf">process_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes a set of entity results such as those returned by :py:meth:`parserbot.calais.CalaisAPI.call_api`,</span>
+<span class="sd">        Takes a set of entity results such as those returned by</span>
+<span class="sd">        :py:meth:`parserbot.calais.CalaisAPI.call_api`,</span>
 <span class="sd">        scores them and formats them for storage.</span>
 
 <span class="sd">        :param results: Results from the OpenCalais API.</span>
@@ -130,8 +133,9 @@
 </div>
 <div class="viewcode-block" id="CalaisAPI.extract_entities"><a class="viewcode-back" href="../../index.html#parserbot.calais.CalaisAPI.extract_entities">[docs]</a>    <span class="k">def</span> <span class="nf">extract_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes a fulltext natural language payload, calls :py:meth:`parserbot.calais.CalaisAPI.call_api`,</span>
-<span class="sd">        then runs :py:meth:`parserbot.calais.CalaisAPI.process_results` on the results.</span>
+<span class="sd">        Takes a fulltext natural language payload, calls</span>
+<span class="sd">        :py:meth:`parserbot.calais.CalaisAPI.call_api`, then runs</span>
+<span class="sd">        :py:meth:`parserbot.calais.CalaisAPI.process_results` on the results.</span>
 
 <span class="sd">        :param payload: Fulltext natural language payload.</span>
 <span class="sd">        :type payload: string</span>

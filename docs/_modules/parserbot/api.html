@@ -68,23 +68,24 @@
 
 <span class="k">def</span> <span class="nf">_authorized</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks to see if the Authorization header is a hash of this application&#39;s secret key.</span>
+<span class="sd">    Checks to see if the Authorization header is a hash of this application&#39;s</span>
+<span class="sd">    secret key.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Authorization&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="n">valid_auth</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Authorization&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">valid_auth</span>
 
 
 <span class="k">def</span> <span class="nf">_valid_request</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks to see if the request has a JSON payload with `payload` argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;payload&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">False</span>
-    <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;payload&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
 
 
 <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks authorization and validity of request, and runs `func` on the request payload.</span>
+<span class="sd">    Checks authorization and validity of request, and runs `func` on the</span>
+<span class="sd">    request payload.</span>
 
 <span class="sd">    :param func: Function to run using the request payload as an argument.</span>
 <span class="sd">    :type func: function</span>
@@ -118,13 +119,15 @@
 <span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">])</span>
 <div class="viewcode-block" id="hello_world"><a class="viewcode-back" href="../../index.html#parserbot.api.hello_world">[docs]</a><span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Used for the ``/`` endpoint. No authorization or payload needed; used for testing purposes.</span>
+<span class="sd">    Used for the ``/`` endpoint. No authorization or payload needed.</span>
+<span class="sd">    For testing purposes only.</span>
 
 <span class="sd">    :return: JSON response object with status and message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
-        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="s">&#39;Hello world! Find me on github at https://github.com/hyperstudio/parserbot&#39;</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="s">&#39;Hello world! &#39;</span>
+            <span class="s">&#39;Find me on github at https://github.com/hyperstudio/parserbot&#39;</span>
     <span class="p">}</span>
     <span class="n">resp</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
     <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">200</span>
@@ -134,7 +137,8 @@
 <span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/opencalais&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
 <div class="viewcode-block" id="run_calais"><a class="viewcode-back" href="../../index.html#parserbot.api.run_calais">[docs]</a><span class="k">def</span> <span class="nf">run_calais</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Used for the ``/opencalais`` endpoint. Calls :py:meth:`parserbot.calais.CalaisAPI.extract_entities`.</span>
+<span class="sd">    Used for the ``/opencalais`` endpoint.</span>
+<span class="sd">    Calls :py:meth:`parserbot.calais.CalaisAPI.extract_entities`.</span>
 
 <span class="sd">    :return: JSON response object with matching entities.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -145,7 +149,8 @@
 <span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/zemanta&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
 <div class="viewcode-block" id="run_zemanta"><a class="viewcode-back" href="../../index.html#parserbot.api.run_zemanta">[docs]</a><span class="k">def</span> <span class="nf">run_zemanta</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Used for the ``/zemanta`` endpoint. Calls :py:meth:`parserbot.zemanta.ZemantaAPI.extract_entities`.</span>
+<span class="sd">    Used for the ``/zemanta`` endpoint.</span>
+<span class="sd">    Calls :py:meth:`parserbot.zemanta.ZemantaAPI.extract_entities`.</span>
 
 <span class="sd">    :return: JSON response object with matching entities.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -158,14 +163,16 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used for the ``/stanford`` endpoint. Runs methods in two stages:</span>
 
-<span class="sd">    - Calls :py:meth:`parserbot.stanford.StanfordNER.extract_entities` and dedupes the results</span>
-<span class="sd">    - Runs the results through :py:meth:`dbpedia.DbpediaAPI.wikify_stanford` to link the entities to Wikipedia</span>
+<span class="sd">    - Calls :py:meth:`parserbot.stanford.StanfordNER.extract_entities` and</span>
+<span class="sd">        dedupes the results</span>
+<span class="sd">    - Runs the results through :py:meth:`dbpedia.DbpediaAPI.wikify_stanford`</span>
+<span class="sd">        to link the entities to Wikipedia</span>
 
 <span class="sd">    :return: JSON response object with matching entities.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stanford_results</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">stanford</span><span class="o">.</span><span class="n">StanfordNER</span><span class="p">()</span><span class="o">.</span><span class="n">extract_entities</span><span class="p">)</span>
     <span class="c"># dedupe the lists so that we aren&#39;t calling dbpedia repeatedly</span>
-    <span class="n">stanford_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">stanford_results</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="n">stanford_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">stanford_results</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
     <span class="c"># now get dbpedia URLs for them</span>
     <span class="n">dbp_results</span> <span class="o">=</span> <span class="n">dbpedia</span><span class="o">.</span><span class="n">DbpediaAPI</span><span class="p">()</span><span class="o">.</span><span class="n">wikify_stanford</span><span class="p">(</span><span class="n">stanford_results</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_respond</span><span class="p">(</span><span class="n">dbp_results</span><span class="p">)</span>
@@ -174,7 +181,8 @@
 <span class="nd">@bp.route</span><span class="p">(</span><span class="s">&#39;/dbpedia&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;POST&#39;</span><span class="p">])</span>
 <div class="viewcode-block" id="run_dbpedia"><a class="viewcode-back" href="../../index.html#parserbot.api.run_dbpedia">[docs]</a><span class="k">def</span> <span class="nf">run_dbpedia</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Used for the ``/dbpedia`` endpoint. Calls :py:meth:`parserbot.dbpedia.DbpediaAPI.get_entities`</span>
+<span class="sd">    Used for the ``/dbpedia`` endpoint.</span>
+<span class="sd">    Calls :py:meth:`parserbot.dbpedia.DbpediaAPI.get_entities`</span>
 
 <span class="sd">    :return: JSON response object with matching entities.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

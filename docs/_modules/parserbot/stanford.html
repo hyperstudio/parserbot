@@ -51,7 +51,8 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">nltk.tag.stanford</span> <span class="kn">import</span> <span class="n">NERTagger</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="k">print</span> <span class="s">&#39;If you want to use the Stanford tagger, you need to install nltk (&gt;= 3.0.1).&#39;</span>
+    <span class="k">print</span> <span class="p">(</span><span class="s">&#39;If you want to use the Stanford tagger, &#39;</span>
+        <span class="s">&#39;you need to install nltk (&gt;= 3.0.1).&#39;</span><span class="p">)</span>
     <span class="n">NERTagger</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="kn">import</span> <span class="nn">config</span>
 <span class="c"># Requires nltk library and plugins</span>
@@ -60,8 +61,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interacts with the Stanford Tagger.</span>
 
-<span class="sd">    :param classifier: Classifier to use for tagging. Defaults to the ``STANFORD_DEFAULT_CLASSIFIER`` config variable.</span>
-<span class="sd">    :param jarfile: Jarfile to use for tagging. Defaults to the ``STANFORD_JARFILE`` config variable.</span>
+<span class="sd">    :param classifier: Classifier to use for tagging.</span>
+<span class="sd">        Defaults to the ``STANFORD_DEFAULT_CLASSIFIER`` config variable.</span>
+<span class="sd">    :param jarfile: Jarfile to use for tagging.</span>
+<span class="sd">        Defaults to the ``STANFORD_JARFILE`` config variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">jarfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -71,8 +74,8 @@
 
 <div class="viewcode-block" id="StanfordNER.run_tagger"><a class="viewcode-back" href="../../index.html#parserbot.stanford.StanfordNER.run_tagger">[docs]</a>    <span class="k">def</span> <span class="nf">run_tagger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Runs :py:meth:`nltk.tag.stanford.NERTagger.tag_sents` on the provided text</span>
-<span class="sd">        (http://www.nltk.org/api/nltk.tag.html#nltk.tag.stanford.NERTagger.tag_sents)</span>
+<span class="sd">        Runs :py:meth:`nltk.tag.stanford.NERTagger.tag_sents` on the provided</span>
+<span class="sd">        text (http://www.nltk.org/api/nltk.tag.html#nltk.tag.stanford.NERTagger.tag_sents)</span>
 
 <span class="sd">        :param payload: Fulltext payload.</span>
 <span class="sd">        :type payload: string</span>
@@ -80,13 +83,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">NERTagger</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
-        <span class="k">return</span> <span class="n">NERTagger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jarfile</span><span class="p">)</span><span class="o">.</span><span class="n">tag_sents</span><span class="p">([</span><span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">,</span> <span class="s">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+        <span class="n">tagger</span> <span class="o">=</span> <span class="n">NERTagger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jarfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tagger</span><span class="o">.</span><span class="n">tag_sents</span><span class="p">([</span><span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">,</span> <span class="s">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
 
 </div>
 <div class="viewcode-block" id="StanfordNER.process_sentences"><a class="viewcode-back" href="../../index.html#parserbot.stanford.StanfordNER.process_sentences">[docs]</a>    <span class="k">def</span> <span class="nf">process_sentences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes a list of parsed sentences, such as returned by :py:meth:`nltk.tag.stanford.NERTagger.tag_sents`,</span>
-<span class="sd">        and reformats them for entity processing.</span>
+<span class="sd">        Takes a list of parsed sentences, such as returned by</span>
+<span class="sd">        :py:meth:`nltk.tag.stanford.NERTagger.tag_sents`, and reformats them</span>
+<span class="sd">        for entity processing.</span>
 
 <span class="sd">        :param sentences: Parsed sentences from the NER Tagger</span>
 <span class="sd">        :type sentences: list of tuples</span>
@@ -103,11 +108,12 @@
             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
                 <span class="n">element</span><span class="p">,</span> <span class="n">entity_type</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">in</span> <span class="n">entity_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="c"># It is a designated entity. Check to see if the word before it was the same type. if so, it&#39;s assumed to be the same entity.</span>
+                    <span class="c"># It is a designated entity.</span>
+                    <span class="c"># Check to see if the word before it was the same type.</span>
+                    <span class="c"># If so, it&#39;s assumed to be the same entity.</span>
                     <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">sentence</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity_type</span><span class="p">:</span>
-                        <span class="c"># Yes, so it is paired with the previous word. Merge it.</span>
-                        <span class="n">old_entry</span> <span class="o">=</span> <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity_type</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                        <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity_type</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">old_entry</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+                        <span class="c"># Yes, so merge it with the previous word.</span>
+                        <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity_type</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">element</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c"># No, so it is a new entity.</span>
                         <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
@@ -116,10 +122,12 @@
 </div>
 <div class="viewcode-block" id="StanfordNER.extract_entities"><a class="viewcode-back" href="../../index.html#parserbot.stanford.StanfordNER.extract_entities">[docs]</a>    <span class="k">def</span> <span class="nf">extract_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes any input text, runs it through the Stanford tagger to extract any entities,</span>
-<span class="sd">        and formats the results as a list of people, places, and organizations.</span>
+<span class="sd">        Takes any input text, runs it through the Stanford tagger to extract</span>
+<span class="sd">        any entities, and formats the results as a list of people, places, and</span>
+<span class="sd">        organizations.</span>
 
-<span class="sd">        Calls :py:meth:`parserbot.stanford.StanfordNER.run_tagger` followed by :py:meth:`parserbot.stanford.StanfordNER.process_sentences`.</span>
+<span class="sd">        Calls :py:meth:`parserbot.stanford.StanfordNER.run_tagger` followed by</span>
+<span class="sd">        :py:meth:`parserbot.stanford.StanfordNER.process_sentences`.</span>
 
 <span class="sd">        :param payload: The payload in natural language text.</span>
 <span class="sd">        :type payload: string</span>
