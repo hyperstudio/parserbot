@@ -6,7 +6,7 @@ from flask import url_for
 import config
 from parserbot import create_parser_app
 
-headers = {'Authentication': hashlib.md5(config.SECRET_KEY).hexdigest()}
+headers = {'Authorization': hashlib.md5(config.SECRET_KEY).hexdigest()}
 sample_payload = 'This is a test for Pablo Picasso.'
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def test_no_auth(client):
 
 def test_bad_auth(client):
 	"""App should respond with 403 when bad auth is provided."""
-	bad_headers = {'Authentication': 'Bad_token'}
+	bad_headers = {'Authorization': 'Bad_token'}
 	res = client.post(url_for('.run_stanford'), headers=bad_headers)
 	assert res.status_code == 403
 

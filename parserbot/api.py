@@ -4,7 +4,7 @@ This includes authorization, validation, and response handling features.
 
 .. note:: **All functions** within this module require **two things**:
 
-    - An ``Authentication`` header that is a md5 hash of your application's secret key.
+    - An ``Authorization`` header that is a md5 hash of your application's secret key.
     - ``POST`` request data that has a ``payload`` key.
 
 """
@@ -18,9 +18,9 @@ bp = Blueprint('parserbot', __name__)
 
 def _authorized():
     """
-    Checks to see if the Authentication header is a hash of this application's secret key.
+    Checks to see if the Authorization header is a hash of this application's secret key.
     """
-    return request.headers.get('Authentication') == hashlib.md5(current_app.config['SECRET_KEY']).hexdigest()
+    return request.headers.get('Authorization') == hashlib.md5(current_app.config['SECRET_KEY']).hexdigest()
 
 
 def _valid_request():

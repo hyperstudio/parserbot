@@ -45,7 +45,7 @@ Setting up specific NLP services:
 
 Python example:
 
-	headers = {'Authentication': '<YOUR_TOKEN_HERE>', 'Content-Type': 'application/json'}
+	headers = {'Authorization': '<YOUR_TOKEN_HERE>', 'Content-Type': 'application/json'}
 	data = json.dumps({'payload': 'This is a test for a man named Pablo Picasso'})
 	r = requests.post('http://localhost:3000/stanford', data=data, headers=headers)
 
