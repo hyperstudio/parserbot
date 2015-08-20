@@ -77,7 +77,8 @@ def test_opencalais(client):
 	"""The OpenCalais endpoint should respond with an entity."""
 	res = post_request('run_calais', sample_payload, client)
 	assert res.status_code == 200
-	assert len(res.json['results']) == 1
+	# Calais returns 8 results
+	assert len(res.json['results']) == 8
 
 def test_zemanta(client):
 	"""The Zemanta endpoint should respond with an entity."""

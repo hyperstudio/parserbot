@@ -26,12 +26,10 @@ class CalaisAPI(object):
        :return: dictionary with JSON response from the Calais API
        """
        headers = {
-           'x-calais-licenseID': '%s' % self.api_key,
-           'content-type': 'text/raw',
-           'accept': 'application/json',
-           'enableMetadataType': "SocialTags",
-           'calculateRelevanceScore': "true",
-           'externalID': "parserbot-%s" % uuid.uuid4(),
+           'X-AG-Access-Token': '%s' % self.api_key,
+           'Content-Type': 'text/raw',
+           'OutputFormat': 'application/json',
+           'X-Calais_Language': 'English'
            }
        r = Request(self.endpoint, data=payload.encode('utf-8'))
        for k,v in headers.items():
@@ -60,8 +58,8 @@ class CalaisAPI(object):
                 score = 0.8 if int(entity["importance"]) > 1 else 0.6
                 entity_type = ""
             elif typeGroup == "topics":
-                name = entity["categoryName"]
-                calais_id = entity["category"]
+                name = entity["name"]
+                calais_id = key
                 score = float(entity["score"]) if "score" in entity else 0.0
                 entity_type = ""
             elif typeGroup == "entities":

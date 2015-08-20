@@ -14,7 +14,7 @@ STANFORD_JARFILE = os.path.join(_stanford_ner_basedir, "stanford-ner.jar")
 STANFORD_DEFAULT_CLASSIFIER = os.path.join(_stanford_ner_basedir, "english.all.3class.distsim.crf.ser.gz")
 
 CALAIS_API_KEY = os.environ.get('CALAIS_API_KEY')
-CALAIS_ENDPOINT = 'http://api.opencalais.com/tag/rs/enrich'
+CALAIS_ENDPOINT = 'https://api.thomsonreuters.com/permid/calais'
 
 FREEBASE_API_KEY = os.environ.get('FREEBASE_API_KEY') # add this
 FREEBASE_ENDPOINT = "https://www.googleapis.com/freebase/v1/mqlread"
