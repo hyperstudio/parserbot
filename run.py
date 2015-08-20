@@ -13,7 +13,8 @@ app = create_parser_app()
 wsgi_middleware = DispatcherMiddleware(app, secondary_apps)
 host = '127.0.0.1' if app.config['DEBUG'] else '0.0.0.0'
 
-if app.config['DEBUG']:
-	run_simple(host, 3000, wsgi_middleware, use_reloader=True)
-else:
-    app.run(host=host, debug=app.config['DEBUG'])
+if __name__ == '__main__':
+    if app.config['DEBUG']:
+    	run_simple(host, 3000, wsgi_middleware, use_reloader=True)
+    else:
+        app.run(host=host, debug=app.config['DEBUG'])
