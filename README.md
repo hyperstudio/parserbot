@@ -67,7 +67,15 @@ You can find the docs in the `docs` subfolder. To generate new docs:
 
 ### Deployment
 
-Currently set up to deploy on Heroku; configure the environment variables you need and it should be good to go.
+Currently set up to deploy on Heroku; configure the environment variables
+you need and it should be good to go. Heroku may complain about setting a
+`JAVAHOME` variable on the `/stanford` endpoint as well. A sample config:
+
+    DEBUG="False"
+    PARSERBOT_SECRET_KEY="<KEY_HERE>"
+    CALAIS_API_KEY="<KEY_HERE>"
+    ZEMANTA_API_KEY="<KEY_HERE>"
+    JAVAHOME="/usr/bin/java"
 
 ### Future
 
