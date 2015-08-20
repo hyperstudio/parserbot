@@ -7,8 +7,10 @@ class ZemantaAPI(object):
     """
     Interacts with the `Zemanta API <http://zemanta.github.io/zemapi-java/>`_.
 
-    :param api_key: Zemanta API key. Defaults to the ``ZEMANTA_API_KEY`` config variable.
-    :param endpoint: Zemanta endpoint URL. Defaults to the ``ZEMANTA_ENDPOINT`` config variable.
+    :param api_key: Zemanta API key.
+        Defaults to the ``ZEMANTA_API_KEY`` config variable.
+    :param endpoint: Zemanta endpoint URL.
+        Defaults to the ``ZEMANTA_ENDPOINT`` config variable.
     :type api_key: string
     :type endpoint: string
     """
@@ -25,18 +27,18 @@ class ZemantaAPI(object):
         :type params: dict
         :return: Dict of Zemanta entities.
         """
-        if not 'api_key' in params.keys():
-            params['api_key'] = self.API_KEY
-        if not 'format' in params.keys():
-            params['format'] = 'json'
-        endpoint = "%s?%s" % (self.ENDPOINT, urlencode(params))
+        params.update({
+            'api_key': self.API_KEY,
+            'format': 'json'
+        })
         r = Request(self.ENDPOINT+'?'+urlencode(params))
         resp = urlopen(r, timeout=8)
         return json.loads(resp.read())
 
     def suggest(self, text, **kwargs):
         """
-        Calls the Zemanta API's ``suggest`` endpoint with arbitrary keyword arguments.
+        Calls the Zemanta API's ``suggest`` endpoint with arbitrary keyword
+        arguments.
 
         :param text: Payload natural language fulltext.
         :type text: string
@@ -54,13 +56,15 @@ class ZemantaAPI(object):
             params[k] = v
         return self._access_api(params)
 
-    def suggest_markup(self, text, emphasis=None, return_rdf_links=False, markup_limit=None):
+    def suggest_markup(self, text, emphasis=None,
+            return_rdf_links=False, markup_limit=None):
         """
         Calls the Zemanta API's ``suggest_markup`` endpoint.
 
         :param text: Payload in natural language fulltext.
         :param emphasis: Highlight matching words (defaults to False)
-        :param return_rdf_links: Include linked data URIs for each entity (defaults to True)
+        :param return_rdf_links: Include linked data URIs for each entity
+            (defaults to True)
         :param markup_limit: Set ``markup_limit`` (defaults to None)
         :type text: string
         :type emphasis: bool
@@ -90,23 +94,22 @@ class ZemantaAPI(object):
 
     def extract_entities(self, payload):
         """
-        Takes a text string as payload and returns any Zemanta markup entities found.
+        Takes a text string as payload and returns any Zemanta markup
+        entities found.
 
-        First calls :py:meth:`parserbot.zemanta.ZemantaAPI.suggest_markup`, then formats the results for storage.
+        First calls :py:meth:`parserbot.zemanta.ZemantaAPI.suggest_markup`,
+        then formats the results for storage.
 
         :param payload: Fulltext natural language payload.
         :type payload: string
         :return: List of Zemanta entities.
         """
         results = self.suggest_markup(payload, return_rdf_links=True)
-        entities = []
-        for link in results['markup']['links']:
-            entity = {
-                'entity_type': link['entity_type'][0] if link['entity_type'] else '',
-                'targets': ', '.join([target['url'] for target in link['target']]),
-                'relevance': link['relevance'],
-                'confidence': link['confidence'],
-                'anchor': link['anchor']
-            }
-            entities.append(entity)
+        entities = [{
+            'entity_type': (link['entity_type'] or [''])[0],
+            'targets': ', '.join([t['url'] for t in link['target']]),
+            'relevance': link['relevance'],
+            'confidence': link['confidence'],
+            'anchor': link['anchor']
+        } for link in results['markup']['links']]
         return entities

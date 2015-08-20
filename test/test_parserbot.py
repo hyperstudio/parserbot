@@ -49,7 +49,8 @@ def test_no_data(client):
 def test_bad_data(client):
 	"""App should respond with 422 when bad data is provided."""
 	bad_data = {'bad_key': 'No payload in this data.'}
-	res = client.post(url_for('.run_stanford'), data=json.dumps(bad_data), headers=headers)
+	res = client.post(
+		url_for('.run_stanford'), data=json.dumps(bad_data), headers=headers)
 	assert res.status_code == 422
 
 def test_bad_json_data(client):
@@ -93,7 +94,8 @@ def test_dbpedia(client):
 	assert len(res.json['results']) == 1
 
 def test_no_entities_in_payload(client):
-	"""The Stanford endpoint should not give an entity if there is not one in the payload."""
+	"""The Stanford endpoint should not give an entity if there is not one
+	   in the payload."""
 	res = post_request('run_stanford', 'No entities here', client)
 	assert res.status_code == 200
 	assert len(res.json['results']) == 0

@@ -1,7 +1,9 @@
 Parserbot
 =========
 
-Parserbot is your one-stop shop for natural language parsing, tagging, and entity extraction. It wraps a variety of services and APIs into one app for easy parsing and cross-reference. Currently:
+Parserbot is your one-stop shop for natural language parsing, tagging, and
+entity extraction. It wraps a variety of services and APIs into one app for
+easy parsing and cross-reference. Currently:
 
 - [Stanford NER](http://nlp.stanford.edu/software/CRF-NER.shtml)
 - [DBpedia](http://dbpedia.org)
@@ -9,14 +11,19 @@ Parserbot is your one-stop shop for natural language parsing, tagging, and entit
 - [Zemanta](http://www.zemanta.com/)
 - roughly, [Freebase](http://www.freebase.com/)
 
-Built for the [Artbot](http://github.com/hyperstudio/artbot-api) project on [Flask](http://flask.pocoo.org/).
+Built for the [Artbot](http://github.com/hyperstudio/artbot-api) project on
+[Flask](http://flask.pocoo.org/).
 
 ### Setup
 
-Tested with Python 2.7.x. Setup within a [virtualenv](http://www.virtualenv.org/en/latest/) is recommended, or even better, a [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). After cloning the repo and activating the virtualenv:
+Tested with Python 2.7.x. Setup within a [virtualenv](http://www.virtualenv.org/en/latest/)
+is recommended, or even better, a [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/).
+After cloning the repo and activating the virtualenv:
 
 * `pip install .`
-* run `python key.py`. It will spit out a secret key and auth header token; save these in environment variables (e.g. a shell profile, `.env` file, etc.). This is a convenience function that you can run as many times as you like.
+* run `python key.py`. It will spit out a secret key and auth header token;
+save these in environment variables (e.g. a shell profile, `.env` file, etc.).
+This is a convenience function that you can run as many times as you like.
 * `python run.py` to start the server
 * navigate to (http://localhost:3000) and you should see a welcome message
 
@@ -26,16 +33,19 @@ Setting up specific NLP services:
 
 ##### Stanford NER -- `/stanford`
 
-* you must have [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) of some flavor installed
+* you must have [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+of some flavor installed
 * `pip install nltk==3.0.1`
 
 ##### OpenCalais -- `/opencalais`
 
-* get an [OpenCalais API key](http://www.opencalais.com/APIkey) and set as a `CALAIS_API_KEY` environment variable
+* get an [OpenCalais API key](http://www.opencalais.com/APIkey) and set as a
+`CALAIS_API_KEY` environment variable
 
 ##### Zemanta -- `/zemanta`
 
-* get a [Zemanta API key](http://www.zemanta.com/developer/) and set as a `ZEMANTA_API_KEY` environment variable
+* get a [Zemanta API key](http://www.zemanta.com/developer/) and set as a
+`ZEMANTA_API_KEY` environment variable
 
 ##### Freebase
 
@@ -81,7 +91,8 @@ you need and it should be good to go. Heroku may complain about setting a
 
 Parsers to add someday:
 
-* [Getty Vocabularies](http://www.getty.edu/research/tools/vocabularies/) (especially [Union List of Artist Names](http://www.getty.edu/research/tools/vocabularies/ulan/index.html))
+* [Getty Vocabularies](http://www.getty.edu/research/tools/vocabularies/)
+(especially [Union List of Artist Names](http://www.getty.edu/research/tools/vocabularies/ulan/index.html))
 * [OpenNLP](https://opennlp.apache.org/)
 * [AlchemyAPI](http://www.alchemyapi.com/)
 * [Diffbot](http://www.diffbot.com/)
@@ -93,4 +104,5 @@ Copyright (C) 2015 Massachusetts Institute of Technology
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as
-published by the Free Software Foundation (http://opensource.org/licenses/GPL-2.0).
+published by the Free Software Foundation
+(http://opensource.org/licenses/GPL-2.0).

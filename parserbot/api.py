@@ -18,23 +18,24 @@ bp = Blueprint('parserbot', __name__)
 
 def _authorized():
     """
-    Checks to see if the Authorization header is a hash of this application's secret key.
+    Checks to see if the Authorization header is a hash of this application's
+    secret key.
     """
-    return request.headers.get('Authorization') == hashlib.md5(current_app.config['SECRET_KEY']).hexdigest()
+    valid_auth = hashlib.md5(current_app.config['SECRET_KEY']).hexdigest()
+    return request.headers.get('Authorization') == valid_auth
 
 
 def _valid_request():
     """
     Checks to see if the request has a JSON payload with `payload` argument.
     """
-    if request.json is None or request.json.get('payload') is None:
-        return False
-    return True
+    return request.json is not None and request.json.get('payload') is not None
 
 
 def _handle(func):
     """
-    Checks authorization and validity of request, and runs `func` on the request payload.
+    Checks authorization and validity of request, and runs `func` on the
+    request payload.
 
     :param func: Function to run using the request payload as an argument.
     :type func: function
@@ -68,13 +69,15 @@ def _respond(results):
 @bp.route('/', methods=['GET'])
 def hello_world():
     """
-    Used for the ``/`` endpoint. No authorization or payload needed; used for testing purposes.
+    Used for the ``/`` endpoint. No authorization or payload needed.
+    For testing purposes only.
 
     :return: JSON response object with status and message.
     """
     message = {
         'status': 200,
-        'message': 'Hello world! Find me on github at https://github.com/hyperstudio/parserbot'
+        'message': 'Hello world! '
+            'Find me on github at https://github.com/hyperstudio/parserbot'
     }
     resp = jsonify(message)
     resp.status_code = 200
@@ -84,7 +87,8 @@ def hello_world():
 @bp.route('/opencalais', methods=['POST'])
 def run_calais():
     """
-    Used for the ``/opencalais`` endpoint. Calls :py:meth:`parserbot.calais.CalaisAPI.extract_entities`.
+    Used for the ``/opencalais`` endpoint.
+    Calls :py:meth:`parserbot.calais.CalaisAPI.extract_entities`.
 
     :return: JSON response object with matching entities.
     """
@@ -95,7 +99,8 @@ def run_calais():
 @bp.route('/zemanta', methods=['POST'])
 def run_zemanta():
     """
-    Used for the ``/zemanta`` endpoint. Calls :py:meth:`parserbot.zemanta.ZemantaAPI.extract_entities`.
+    Used for the ``/zemanta`` endpoint.
+    Calls :py:meth:`parserbot.zemanta.ZemantaAPI.extract_entities`.
 
     :return: JSON response object with matching entities.
     """
@@ -108,14 +113,16 @@ def run_stanford():
     """
     Used for the ``/stanford`` endpoint. Runs methods in two stages:
 
-    - Calls :py:meth:`parserbot.stanford.StanfordNER.extract_entities` and dedupes the results
-    - Runs the results through :py:meth:`dbpedia.DbpediaAPI.wikify_stanford` to link the entities to Wikipedia
+    - Calls :py:meth:`parserbot.stanford.StanfordNER.extract_entities` and
+        dedupes the results
+    - Runs the results through :py:meth:`dbpedia.DbpediaAPI.wikify_stanford`
+        to link the entities to Wikipedia
 
     :return: JSON response object with matching entities.
     """
     stanford_results = _handle(stanford.StanfordNER().extract_entities)
     # dedupe the lists so that we aren't calling dbpedia repeatedly
-    stanford_results = dict((key, list(set(value))) for key, value in stanford_results.items())
+    stanford_results = {k: list(set(v)) for k,v in stanford_results.items()}
     # now get dbpedia URLs for them
     dbp_results = dbpedia.DbpediaAPI().wikify_stanford(stanford_results)
     return _respond(dbp_results)
@@ -124,7 +131,8 @@ def run_stanford():
 @bp.route('/dbpedia', methods=['POST'])
 def run_dbpedia():
     """
-    Used for the ``/dbpedia`` endpoint. Calls :py:meth:`parserbot.dbpedia.DbpediaAPI.get_entities`
+    Used for the ``/dbpedia`` endpoint.
+    Calls :py:meth:`parserbot.dbpedia.DbpediaAPI.get_entities`
 
     :return: JSON response object with matching entities.
     """

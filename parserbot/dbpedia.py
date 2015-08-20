@@ -2,18 +2,18 @@ from urllib2 import urlopen, Request
 from urllib import urlencode
 import json
 
-DBPEDIA_ENDPOINT = "http://lookup.dbpedia.org/api/search.asmx/"
-SPOTLIGHT_ENDPOINT = "http://spotlight.dbpedia.org/rest/"
 
 class DbpediaAPI(object):
     """
     Interacts with DBpedia API endpoints. No API key required.
     """
 
-    def get_json(self, url, params, headers):
+    DBPEDIA_ENDPOINT = "http://lookup.dbpedia.org/api/search.asmx/"
+    SPOTLIGHT_ENDPOINT = "http://spotlight.dbpedia.org/rest/"
+
+    def get_json(self, url, params):
         r = Request(url+'?'+urlencode(params))
-        for k,v in headers.items():
-            r.add_header(k,v)
+        r.add_header('accept', 'application/json')
         resp = urlopen(r)
         return json.loads(resp.read())
 
@@ -25,20 +25,17 @@ class DbpediaAPI(object):
         :type payload: string
         :return: Dictionary of JSON response from DBpedia
         """
-        url = SPOTLIGHT_ENDPOINT + "annotate"
-        headers = {
-            "accept": "application/json"
-        }
+        url = self.SPOTLIGHT_ENDPOINT + "annotate"
         params = {
             "text": payload,
             "confidence": 0.3
         }
-        return self.get_json(url, params, headers)
+        return self.get_json(url, params)
 
     def extract_entities(self, payload):
         """
-        Queries DBpedia's `Spotlight API <https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki>`_ and
-        processes the results to return only useful resources.
+        Queries DBpedia's `Spotlight API <https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki>`_
+        and processes the results to return only useful resources.
 
         :param payload: Fulltext natural language payload.
         :type payload: string
@@ -49,20 +46,18 @@ class DbpediaAPI(object):
 
     def keyword_search(self, keyword):
         """
-        Queries DBpedia's keyword search API to get a list of matching entities to the provided keyword.
+        Queries DBpedia's keyword search API to get a list of matching entities
+        to the provided keyword.
 
         :param keyword: Keyword to use in query.
         :type keyword: string
         """
-        url = DBPEDIA_ENDPOINT + "KeywordSearch"
-        headers = {
-            "accept": "application/json"
-        }
+        url = self.DBPEDIA_ENDPOINT + "KeywordSearch"
         params = {
             "QueryClass": "",
             "QueryString": keyword
         }
-        return self.get_json(url, params, headers)
+        return self.get_json(url, params)
 
     def prefix_search(self, prefix):
         """
@@ -71,22 +66,21 @@ class DbpediaAPI(object):
         :param prefix: Text prefix.
         :type prefix: string
         """
-        url = DBPEDIA_ENDPOINT + "PrefixSearch"
-        headers = {
-            "accept": "application/json"
-        }
+        url = self.DBPEDIA_ENDPOINT + "PrefixSearch"
         params = {
             "QueryClass": "",
             "QueryString": prefix,
             "MaxHits": 5
         }
-        return self.get_json(url, params, headers)
+        return self.get_json(url, params)
 
     def wikify_stanford(self, stanford_results):
         """
-        Take a set of unlinked entities from the Stanford module and link them to DBpedia resources.
+        Take a set of unlinked entities from the Stanford module and link them
+        to DBpedia resources.
 
-        :param stanford_results: Formatted Stanford entities as returned by :py:meth:`parserbot.stanford.StanfordNER.extract_entities`.
+        :param stanford_results: Formatted Stanford entities as returned by
+            :py:meth:`parserbot.stanford.StanfordNER.extract_entities`.
         :type stanford_results: dict
         """
         dbp_results = []
