@@ -59,7 +59,8 @@ setup(
     extras_require={
         'testing': ['pytest>=2.6.4', 'pytest-flask>=0.6.0'],
         'docs': ['Sphinx>=1.2.3'],
-        'stanford_ner': ['nltk==3.0.1']
+        'stanford_ner': ['nltk==3.0.1'],
+        'deploy': ['gunicorn==19.3.0']
     },
     description='Natural Language services and APIs all in one place',
     long_description=long_description
