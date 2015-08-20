@@ -54,7 +54,7 @@
 
 <span class="sd">.. note:: **All functions** within this module require **two things**:</span>
 
-<span class="sd">    - An ``Authentication`` header that is a md5 hash of your application&#39;s secret key.</span>
+<span class="sd">    - An ``Authorization`` header that is a md5 hash of your application&#39;s secret key.</span>
 <span class="sd">    - ``POST`` request data that has a ``payload`` key.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -68,9 +68,9 @@
 
 <span class="k">def</span> <span class="nf">_authorized</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks to see if the Authentication header is a hash of this application&#39;s secret key.</span>
+<span class="sd">    Checks to see if the Authorization header is a hash of this application&#39;s secret key.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Authentication&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Authorization&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">_valid_request</span><span class="p">():</span>

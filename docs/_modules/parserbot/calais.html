@@ -76,12 +76,10 @@
 <span class="sd">       :return: dictionary with JSON response from the Calais API</span>
 <span class="sd">       &quot;&quot;&quot;</span>
        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-           <span class="s">&#39;x-calais-licenseID&#39;</span><span class="p">:</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">,</span>
-           <span class="s">&#39;content-type&#39;</span><span class="p">:</span> <span class="s">&#39;text/raw&#39;</span><span class="p">,</span>
-           <span class="s">&#39;accept&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
-           <span class="s">&#39;enableMetadataType&#39;</span><span class="p">:</span> <span class="s">&quot;SocialTags&quot;</span><span class="p">,</span>
-           <span class="s">&#39;calculateRelevanceScore&#39;</span><span class="p">:</span> <span class="s">&quot;true&quot;</span><span class="p">,</span>
-           <span class="s">&#39;externalID&#39;</span><span class="p">:</span> <span class="s">&quot;parserbot-</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">(),</span>
+           <span class="s">&#39;X-AG-Access-Token&#39;</span><span class="p">:</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">,</span>
+           <span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;text/raw&#39;</span><span class="p">,</span>
+           <span class="s">&#39;OutputFormat&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+           <span class="s">&#39;X-Calais_Language&#39;</span><span class="p">:</span> <span class="s">&#39;English&#39;</span>
            <span class="p">}</span>
        <span class="n">r</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -110,8 +108,8 @@
                 <span class="n">score</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="s">&quot;importance&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.6</span>
                 <span class="n">entity_type</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
             <span class="k">elif</span> <span class="n">typeGroup</span> <span class="o">==</span> <span class="s">&quot;topics&quot;</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="s">&quot;categoryName&quot;</span><span class="p">]</span>
-                <span class="n">calais_id</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="s">&quot;category&quot;</span><span class="p">]</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span>
+                <span class="n">calais_id</span> <span class="o">=</span> <span class="n">key</span>
                 <span class="n">score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="s">&quot;score&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s">&quot;score&quot;</span> <span class="ow">in</span> <span class="n">entity</span> <span class="k">else</span> <span class="mf">0.0</span>
                 <span class="n">entity_type</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
             <span class="k">elif</span> <span class="n">typeGroup</span> <span class="o">==</span> <span class="s">&quot;entities&quot;</span><span class="p">:</span>
