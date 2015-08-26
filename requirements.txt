@@ -1,1 +1,2 @@
 -e .[stanford_ner,deploy]
+beautifulsoup4==4.4.0

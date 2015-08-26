@@ -7,6 +7,10 @@ DEBUG = os.environ.get('DEBUG') or True
 JSON_AS_ASCII = False
 SECRET_KEY = os.environ.get('PARSERBOT_SECRET_KEY')
 
+# Scraperbot variable
+
+SCRAPERBOT_SECRET_KEY = os.environ.get('SCRAPERBOT_SECRET_KEY')
+
 # Resource-specific variables
 
 _stanford_ner_basedir = os.path.join(
